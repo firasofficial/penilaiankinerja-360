@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        (function () {
+            'use strict';
+            const userStr = sessionStorage.getItem('penilaian360_user');
+            if (!userStr) {
+                window.location.replace('login.html');
+                return;
+            }
+            const user = JSON.parse(userStr);
+            if (!user || !user.loggedIn) {
+                window.location.replace('login.html');
+                return;
+            }
+        })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Penilaian Bawahan - 360° Aceh Timur</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Tambahan Library jQuery & Select2 untuk Fitur Pencarian -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <style>
+        :root {
+            --primary-blue: #1e40af;
+            --secondary-blue: #3b82f6;
+            --light-bg: #f3f4f6;
+            --text-dark: #1f2937;
+            --accent-green: #10b981;
+            --border-color: #d1d5db;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            margin: 0;
+            color: var(--text-dark);
+        }
+
+        /* Header */
+        header {
+            background: white;
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--primary-blue);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-logo img {
+            width: 70px;
+            height: auto;
+            display: block;
+        }
+
+        .header-title h1 {
+            margin: 0 0 5px;
+            font-size: 1.4rem;
+            color: var(--primary-blue);
+        }
+
+        .header-title p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        /* Form Container */
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .form-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px dashed var(--border-color);
+        }
+
+        .form-header h2 {
+            color: var(--primary-blue);
+            margin: 0 0 10px 0;
+        }
+
+        .badge {
+            background-color: #eff6ff;
+            color: var(--secondary-blue);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        /* Form Layout */
+        .section-title {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin: 25px 0 15px;
+            padding-left: 10px;
+            border-left: 4px solid var(--secondary-blue);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            color: #4b5563;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--secondary-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .input-peran {
+            background-color: #f3f4f6;
+            text-align: center;
+            font-size: 1.2rem !important;
+            font-weight: bold;
+            color: var(--primary-blue);
+            cursor: not-allowed;
+            width: 80px !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        /* --- Kustomisasi UI Select2 (Pencarian Dropdown) --- */
+        .select2-container {
+            width: 100% !important;
+        }
+        .select2-container .select2-selection--single {
+            height: 45px !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 8px !important;
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: var(--text-dark) !important;
+            padding-left: 12px !important;
+            font-size: 1rem;
+            line-height: normal !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 43px !important;
+            right: 10px !important;
+        }
+        .select2-container--default.select2-container--open .select2-selection--single,
+        .select2-container--default .select2-selection--single:focus {
+            border-color: var(--secondary-blue) !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+            outline: none;
+        }
+        /* Icon Pencarian pada dropdown Select2 */
+        .select2-search--dropdown {
+            position: relative;
+            padding: 12px !important;
+        }
+        .select2-search--dropdown::before {
+            content: "\f002"; /* Unicode FontAwesome untuk icon search */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 22px;
+            top: 22px;
+            color: #9ca3af;
+            font-size: 0.95rem;
+        }
+        .select2-search--dropdown .select2-search__field {
+            padding-left: 35px !important; /* Memberi ruang untuk icon search */
+            border: 1px solid var(--border-color) !important;
+            border-radius: 6px !important;
+            height: 38px !important;
+            outline: none;
+            font-family: inherit;
+        }
+        .select2-search--dropdown .select2-search__field:focus {
+            border-color: var(--secondary-blue) !important;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
+        }
+        .select2-results__option {
+            padding: 10px 12px !important;
+        }
+        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+            background-color: var(--secondary-blue) !important;
+            color: white !important;
+        }
+
+        /* Bagian Instrumen (Garis Putus-putus) */
+        .instrumen-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px dashed var(--border-color);
+            width: 100%;
+        }
+
+        .question-box {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .question-title {
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+
+        .rubric-box {
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            color: #475569;
+            border-left: 3px solid #cbd5e1;
+        }
+
+        .rubric-box ul {
+            margin: 0;
+            padding-left: 20px;
+            list-style-type: none;
+        }
+
+        .rubric-box li { margin-bottom: 6px; }
+        .rubric-box strong { color: var(--text-dark); display: inline-block; width: 100px; }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+            background-color: #eff6ff; 
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .radio-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .radio-option input[type="radio"] {
+            transform: scale(1.3);
+            cursor: pointer;
+        }
+
+        .btn-submit {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-submit:hover { background-color: #1e3a8a; }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .header-container { flex-direction: column; text-align: center; }
+            .rubric-box strong { display: block; width: 100%; margin-bottom: 3px; }
+            .radio-group { flex-wrap: wrap; justify-content: center; gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="header-logo">
+                <img src="Lambang_Kabupaten_Aceh_Timur.png" alt="Logo Kabupaten Aceh Timur">
+            </div>
+            <div class="header-title">
+                <h1>Sistem Penilaian Perilaku Kerja 360°</h1>
+                <p>Pemerintah Kabupaten Aceh Timur</p>
+            </div>
+            <a href="index.html" style="margin-left: auto; color: var(--secondary-blue); text-decoration: none; font-weight: bold;">
+                <i class="fas fa-home"></i> Beranda
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <form class="form-card" id="formBawahan" action="#" method="POST">
+            
+            <input type="hidden" name="jenis_penilai" value="Atasan">
+
+            <div class="form-header">
+                <div class="badge"><i class="fas fa-user-graduate"></i> Form Bawahan</div>
+                <h2>Penilaian Oleh Bawahan Terhadap Atasan</h2>
+                <p style="color: #6b7280; margin:0;">Silakan isi data Atasan Langsung Anda dan berikan penilaian seobjektif mungkin.</p>
+            </div>
+
+            <h5 class="section-title">A. Data Atasan yang Dinilai</h5>
+            <div class="form-grid">
+                <div class="form-group full-width"> 
+                    <label for="satuanKerja" class="form-label fw-bold text-secondary">Nama Satuan Kerja Atasan Anda</label>
+                    <select name="satuan_kerja" id="satuanKerja" class="form-select" required>
+                        <option value="" disabled selected>-- Pilih Satuan Kerja / Perangkat Daerah --</option>
+                        <option value="Badan Kepegawaian dan Pengembangan Sumber Daya Manusia">Badan Kepegawaian dan Pengembangan Sumber Daya Manusia</option>
+                        <option value="Sekretariat Daerah">Sekretariat Daerah</option>
+                        <option value="Sekretariat DPRK">Sekretariat DPRK</option>
+                        <option value="Sekretariat Baitul Mal">Sekretariat Baitul Mal</option>
+                        <option value="Sekretariat MPU">Sekretariat MPU</option>
+                        <option value="Sekretariat MAA">Sekretariat MAA</option>
+                        <option value="Sekretariat MPA">Sekretariat MPA</option>
+                        <option value="Inspektorat Daerah">Inspektorat Daerah</option>                        
+                        <option value="Badan Perencanaan Pembangunan Daerah (BAPPEDA)">Badan Perencanaan Pembangunan Daerah</option>
+                        <option value="Badan Pengelolaan Keuangan Daerah (BPKD)">Badan Pengelolaan Keuangan Daerah</option>
+                        <option value="Badan Penanggulangan Bencana Daerah (BPBD)">Badan Penanggulangan Bencana Daerah</option>
+                        <option value="Badan Kesatuan Bangsa dan Politik">Badan Kesatuan Bangsa dan Politik</option>
+                        <option value="Dinas Pendidikan dan Kebudayaan">Dinas Pendidikan dan Kebudayaan</option>
+                        <option value="Dinas Kesehatan">Dinas Kesehatan</option>
+                        <option value="Dinas Pekerjaan Umum dan Penataan Ruang (PUPR)">Dinas Pekerjaan Umum dan Penataan Ruang</option>
+                        <option value="Dinas Kependudukan dan Pencatatan Sipil (Disdukcapil)">Dinas Kependudukan dan Pencatatan Sipil</option>
+                        <option value="Dinas Komunikasi dan Informatika (Diskominfo)">Dinas Komunikasi dan Informatika</option>
+                        <option value="Dinas Sosial">Dinas Sosial</option>
+                        <option value="Dinas Penanaman Modal dan Pelayanan Terpadu Satu Pintu (DPMPTSP)">Dinas Penanaman Modal dan Pelayanan Terpadu Satu Pintu</option>
+                        <option value="Dinas Perhubungan">Dinas Perhubungan</option>
+                        <option value="Dinas Pertanahan">Dinas Pertanahan</option>                        
+                        <option value="Dinas Syariat Islam">Dinas Syariat Islam</option>
+                        <option value="Dinas Pendidikan Dayah">Dinas Pendidikan Dayah</option>
+                        <option value="Dinas Lingkungan Hidup">Dinas Lingkungan Hidup</option>
+                        <option value="Dinas Pemberdayaan Perempuan Perlindungan Anak dan Keluarga Berencana">Dinas Pemberdayaan Perempuan Perlindungan Anak dan Keluarga Berencana</option>
+                        <option value="Dinas Pemberdayaan Masyarakat dan Gampong">Dinas Pemberdayaan Masyarakat dan Gampong</option>
+                        <option value="Dinas Pertanian dan Hortikultura">Dinas Pertanian dan Hortikultura</option>
+                        <option value="Dinas Perindustrian dan Transmigrasi">Dinas Perindustrian dan Transmigrasi</option>
+                        <option value="Dinas Perkebunan dan Peternakan">Dinas Perkebunan dan Peternakan</option>
+                        <option value="Dinas Perikanan dan Kelautan">Dinas Perikanan dan Kelautan</option>
+                        <option value="Dinas Pariwisata Pemuda dan Olahraga">Dinas Pariwisata Pemuda dan Olahraga</option>
+                        <option value="Dinas Perdagangan Koperasi dan UKM">Dinas Perdagangan Koperasi dan UKM</option>
+                        <option value="Dinas Ketahanan Pangan dan Penyuluhan">Dinas Ketahanan Pangan dan Penyuluhan</option>
+                        <option value="Satuan Polisi Pamong Praja dan Wilayatul Hisbah">Satuan Polisi Pamong Praja dan Wilayatul Hisbah</option>
+                        <option value="Kecamatan Idi Rayeuk">Kecamatan Idi Rayeuk</option>
+                        <option value="Kecamatan Nurussalam">Kecamatan Nurussalam</option>
+                        <option value="Kecamatan Darul Falah">Kecamatan Darul Falah</option>
+                        <option value="Kecamatan Banda Alam">Kecamatan Banda Alam</option>
+                        <option value="Kecamatan Indra Makmu">Kecamatan Indra Makmu</option>
+                        <option value="Kecamatan Darul Aman">Kecamatan Darul Aman</option>
+                        <option value="Kecamatan Idi Tunong">Kecamatan Idi Tunong</option>
+                        <option value="Kecamatan Darul Ihsan">Kecamatan Darul Ihsan</option>
+                        <option value="Kecamatan Rantau Selamat">Kecamatan Rantau Selamat</option>
+                        <option value="Kecamatan Sungai Raya">Kecamatan Sungai Raya</option>
+                        <option value="Kecamatan Peureulak">Kecamatan Peureulak</option>
+                        <option value="Kecamatan Peureulak Barat">Kecamatan Peureulak Barat</option>
+                        <option value="Kecamatan Peureulak Timur">Kecamatan Peureulak Timur</option>
+                        <option value="Kecamatan Peudawa">Kecamatan Peudawa</option>
+                        <option value="Kecamatan Idi Timur">Kecamatan Idi Timur</option>
+                        <option value="Kecamatan Madat">Kecamatan Madat</option>                        
+                        <option value="Kecamatan Simpang Jernih">Kecamatan Simpang Jernih</option>
+                        <option value="Kecamatan Pantee Bidari">Kecamatan Pantee Bidari</option>
+                        <option value="Kecamatan Simpang Ulim">Kecamatan Simpang Ulim</option>
+                        <option value="Kecamatan Julok">Kecamatan Julok</option>
+                        <option value="Kecamatan Serbajadi">Kecamatan Serbajadi</option>
+                        <option value="Kecamatan Peunaron">Kecamatan Peunaron</option>
+                        <option value="Kecamatan Birem Bayeun">Kecamatan Birem Bayeun</option>
+                        <option value="Kecamatan Rantau Peureulak">Kecamatan Rantau Peureulak</option>
+                    </select>
+                </div>
+            </div>
+
+            <h5 class="section-title">B. Data Atasan Yang Dinilai</h5>
+            <div class="form-grid">
+                
+                <div class="form-group">
+                    <label for="nip_bawahan">NIP Atasan</label>
+                    <input type="text" id="nip_bawahan" name="nip_bawahan" maxlength="18" placeholder="18 Digit NIP Tanpa Spasi" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                </div>
+
+                <div class="form-group">
+                    <label for="nama_bawahan">Nama Atasan</label>
+                    <input type="text" id="nama_bawahan" name="nama_bawahan" placeholder="Otomatis terisi..." required readonly style="background-color: #f9fafb;">
+                </div>
+                
+                <div class="form-group">
+                    <label for="pangkat" class="form-label">Pangkat</label>
+                    <input type="text" class="form-control" id="pangkat" name="pangkat" placeholder="Otomatis terisi..." readonly style="background-color: #f9fafb;">
+                </div>
+                
+                <div class="form-group">
+                    <label for="jabatan" class="form-label">Jabatan</label>
+                    <input type="text" class="form-control" id="jabatan" name="jabatan" placeholder="Otomatis terisi..." readonly style="background-color: #f9fafb;">
+                </div>
+
+                <div class="form-group">
+                    <label for="jenis_pegawai">Jenis Pegawai</label>
+                    <select id="jenis_pegawai" name="jenis_pegawai" required>
+                        <option value="">-- Pilih Jenis Pegawai --</option>
+                        <option value="PNS">Pegawai Negeri Sipil (PNS)</option>
+                        <option value="PPPK">Pegawai Pemerintah dengan Perjanjian Kerja (PPPK)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="tahunPenilaian" class="form-label">Tahun Penilaian</label>
+                    <select class="form-select" id="tahunPenilaian" name="tahun_penilaian">
+                        <option value="2024">2024</option>
+                        <option value="2025" selected>2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Peran Penilai</label>
+                    <input type="text" name="peran_penilai" value="30" class="input-peran" readonly title="Kode Peran Bawahan Menilai Atasan">
+                </div>
+
+            </div>
+
+            <div class="instrumen-section">
+                <h3 class="section-title" style="margin-top: 0; border-color: var(--secondary-blue);">B. Instrumen Penilaian Perilaku Kerja (Berdasarkan Core Value ASN Ber-AKHLAK)</h3>
+                <p style="font-size: 0.9rem; margin-bottom: 20px; color: #4b5563;">Mohon berikan penilaian Anda secara objektif dengan memilih angka 1 hingga 5.</p>
+                
+                <div class="question-box">
+                    <div class="question-title">1. Berorientasi Pelayanan</div>
+                    <p>Bagaimanakah atasan Anda dalam memberikan pelayanan?</p>
+                    <div class="rubric-box">
+                        <ul>
+                            <li><strong>5 (Sangat Baik)</strong>: Sangat memahami kebutuhan pelayanan dan sangat ramah dan cekatan.</li>
+                            <li><strong>4 (Baik)</strong>: Memahami kebutuhan pelayanan dan ramah serta cekatan.</li>
+                            <li><strong>3 (Cukup)</strong>: Cukup memahami kebutuhan pelayanan dan cukup ramah.</li>
+                            <li><strong>2 (Kurang)</strong>: Kurang memahami kebutuhan pelayanan dan kurang ramah.</li>
+                            <li><strong>1 (Sgt Kurang)</strong>: Sangat tidak memahami kebutuhan pelayanan dan sangat tidak ramah.</li>
+                        </ul>
+                    </div>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="skor_pelayanan" value="1" required> 1</label>
+                        <label class="radio-option"><input type="radio" name="skor_pelayanan" value="2"> 2</label>
+                        <label class="radio-option"><input type="radio" name="skor_pelayanan" value="3"> 3</label>
+                        <label class="radio-option"><input type="radio" name="skor_pelayanan" value="4"> 4</label>
+                        <label class="radio-option"><input type="radio" name="skor_pelayanan" value="5"> 5</label>
+                    </div>
+                </div>
+
+                <div class="question-box">
+                    <div class="question-title">2. Akuntabel</div>
+                    <p>Bagaimanakah atasan Anda dalam menyikapi arahan dan kepercayaan yang diberikan?</p>
+                    <div class="rubric-box">
+                        <ul>
+                            <li><strong>5 (Sangat Baik)</strong>: Sangat Jujur, disiplin dan sangat bertanggung jawab.</li>
+                            <li><strong>4 (Baik)</strong>: Jujur, disiplin dan bertanggung jawab.</li>
+                            <li><strong>3 (Cukup)</strong>: Cukup jujur, cukup disiplin dan cukup bertanggung jawab.</li>
+                            <li><strong>2 (Kurang)</strong>: Kurang Jujur, kurang disiplin dan kurang bertanggung jawab.</li>
+                            <li><strong>1 (Sgt Kurang)</strong>: Sangat tidak jujur, tidak disiplin dan sangat tidak bertanggung jawab.</li>
+                        </ul>
+                    </div>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="skor_akuntabel" value="1" required> 1</label>
+                        <label class="radio-option"><input type="radio" name="skor_akuntabel" value="2"> 2</label>
+                        <label class="radio-option"><input type="radio" name="skor_akuntabel" value="3"> 3</label>
+                        <label class="radio-option"><input type="radio" name="skor_akuntabel" value="4"> 4</label>
+                        <label class="radio-option"><input type="radio" name="skor_akuntabel" value="5"> 5</label>
+                    </div>
+                </div>
+
+                <div class="question-box">
+                    <div class="question-title">3. Kompeten</div>
+                    <p>Bagaimanakah kualitas atasan Anda dalam melaksanakan tugas dan mengembangkan kapabilitasnya?</p>
+                    <div class="rubric-box">
+                        <ul>
+                            <li><strong>5 (Sangat Baik)</strong>: Kualitas sangat baik dan motivasi sangat tinggi mengembangkan diri.</li>
+                            <li><strong>4 (Baik)</strong>: Kualitas baik dan memiliki motivasi mengembangkan diri.</li>
+                            <li><strong>3 (Cukup)</strong>: Kualitas cukup baik dan memiliki cukup motivasi.</li>
+                            <li><strong>2 (Kurang)</strong>: Kualitas kurang baik dan memiliki sedikit motivasi.</li>
+                            <li><strong>1 (Sgt Kurang)</strong>: Kualitas sangat buruk dan tidak ada motivasi.</li>
+                        </ul>
+                    </div>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="skor_kompeten" value="1" required> 1</label>
+                        <label class="radio-option"><input type="radio" name="skor_kompeten" value="2"> 2</label>
+                        <label class="radio-option"><input type="radio" name="skor_kompeten" value="3"> 3</label>
+                        <label class="radio-option"><input type="radio" name="skor_kompeten" value="4"> 4</label>
+                        <label class="radio-option"><input type="radio" name="skor_kompeten" value="5"> 5</label>
+                    </div>
+                </div>
+
+                <div class="question-box">
+                    <div class="question-title">4. Harmonis</div>
+                    <p>Bagaimanakah sikap atasan Anda terhadap orang lain dan bagaimana ia menyikapi perbedaan?</p>
+                    <div class="rubric-box">
+                        <ul>
+                            <li><strong>5 (Sangat Baik)</strong>: Sangat suka menolong dan sangat menghargai perbedaan.</li>
+                            <li><strong>4 (Baik)</strong>: Suka menolong dan menghargai perbedaan.</li>
+                            <li><strong>3 (Cukup)</strong>: Cukup suka menolong dan cukup menghargai perbedaan.</li>
+                            <li><strong>2 (Kurang)</strong>: Kurang suka menolong dan kurang menghargai perbedaan.</li>
+                            <li><strong>1 (Sgt Kurang)</strong>: Sangat tidak suka menolong dan sangat tidak menghargai perbedaan.</li>
+                        </ul>
+                    </div>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="skor_harmonis" value="1" required> 1</label>
+                        <label class="radio-option"><input type="radio" name="skor_harmonis" value="2"> 2</label>
+                        <label class="radio-option"><input type="radio" name="skor_harmonis" value="3"> 3</label>
+                        <label class="radio-option"><input type="radio" name="skor_harmonis" value="4"> 4</label>
+                        <label class="radio-option"><input type="radio" name="skor_harmonis" value="5"> 5</label>
+                    </div>
+                </div>
+
+                <div class="question-box">
+                    <div class="question-title">5. Loyal</div>
+                    <p>Bagaimanakah dedikasi atasan Anda terhadap kepentingan Bangsa dan Negara?</p>
+                    <div class="rubric-box">
+                        <ul>
+                            <li><strong>5 (Sangat Baik)</strong>: Berdedikasi sangat tinggi, sangat mampu menjaga nama baik.</li>
+                            <li><strong>4 (Baik)</strong>: Berdedikasi dan mampu menjaga nama baik.</li>
+                            <li><strong>3 (Cukup)</strong>: Cukup berdedikasi dan cukup mampu menjaga nama baik.</li>
+                            <li><strong>2 (Kurang)</strong>: Kurang berdedikasi dan kurang mampu menjaga nama baik.</li>
+                            <li><strong>1 (Sgt Kurang)</strong>: Sangat tidak berdedikasi dan sama sekali tidak mampu.</li>
+                        </ul>
+                    </div>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="skor_loyal" value="1" required> 1</label>
+                        <label class="radio-option"><input type="radio" name="skor_loyal" value="2"> 2</label>
+                        <label class="radio-option"><input type="radio" name="skor_loyal" value="3"> 3</label>
+                        <label class="radio-option"><input type="radio" name="skor_loyal" value="4"> 4</label>
+                        <label class="radio-option"><input type="radio" name="skor_loyal" value="5"> 5</label>
+                    </div>
+                </div>
+
+                <div class="question-box">
+                    <div class="question-title">6. Adaptif</div>
+                    <p>Bagaimanakah atasan Anda dalam menyikapi dan menghadapi setiap perubahan?</p>
+                    <div class="rubric-box">
+                        <ul>
+                            <li><strong>5 (Sangat Baik)</strong>: Sangat proaktif terhadap setiap perubahan dan sangat cepat menyesuaikan diri.</li>
+                            <li><strong>4 (Baik)</strong>: Proaktif terhadap perubahan dan cepat menyesuaikan diri.</li>
+                            <li><strong>3 (Cukup)</strong>: Cukup proaktif terhadap perubahan dan cukup cepat menyesuaikan diri.</li>
+                            <li><strong>2 (Kurang)</strong>: Kurang proaktif terhadap perubahan dan lambat menyesuaikan diri.</li>
+                            <li><strong>1 (Sgt Kurang)</strong>: Sangat tidak proaktif dan sangat lambat menyesuaikan diri.</li>
+                        </ul>
+                    </div>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="skor_adaptif" value="1" required> 1</label>
+                        <label class="radio-option"><input type="radio" name="skor_adaptif" value="2"> 2</label>
+                        <label class="radio-option"><input type="radio" name="skor_adaptif" value="3"> 3</label>
+                        <label class="radio-option"><input type="radio" name="skor_adaptif" value="4"> 4</label>
+                        <label class="radio-option"><input type="radio" name="skor_adaptif" value="5"> 5</label>
+                    </div>
+                </div>
+
+                <div class="question-box">
+                    <div class="question-title">7. Kolaboratif</div>
+                    <p>Bagaimanakah atasan Anda dalam membangun jejaring kerja dan kolaborasi?</p>
+                    <div class="rubric-box">
+                        <ul>
+                            <li><strong>5 (Sangat Baik)</strong>: Sangat terbuka bekerja sama & memberi kesempatan luas orang lain berkontribusi.</li>
+                            <li><strong>4 (Baik)</strong>: Terbuka bekerja sama & memberi kesempatan orang lain berkontribusi.</li>
+                            <li><strong>3 (Cukup)</strong>: Cukup terbuka bekerja sama & memberi kesempatan cukup.</li>
+                            <li><strong>2 (Kurang)</strong>: Kurang terbuka bekerja sama & kurang memberi kesempatan.</li>
+                            <li><strong>1 (Sgt Kurang)</strong>: Tidak terbuka bekerja sama & tidak memberi kesempatan.</li>
+                        </ul>
+                    </div>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="skor_kolaboratif" value="1" required> 1</label>
+                        <label class="radio-option"><input type="radio" name="skor_kolaboratif" value="2"> 2</label>
+                        <label class="radio-option"><input type="radio" name="skor_kolaboratif" value="3"> 3</label>
+                        <label class="radio-option"><input type="radio" name="skor_kolaboratif" value="4"> 4</label>
+                        <label class="radio-option"><input type="radio" name="skor_kolaboratif" value="5"> 5</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-paper-plane"></i> Kirim Penilaian
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script src="pegawai.js"></script>
+    <script>
+        // --- Inisialisasi Fitur Select2 (Dropdown Pencarian) ---
+        $(document).ready(function() {
+            $('#satuanKerja').select2();
+        });
+
+        // 1. Variabel penampung data JSON
+        let dataPegawai = window.dataPegawaiGlobal || [];
+
+        // 2. Load data dari file JSON saat halaman dibuka
+        if (!dataPegawai || dataPegawai.length === 0) {
+            fetch('pegawai.json')
+                .then(response => response.json())
+                .then(data => {
+                    dataPegawai = data;
+                    console.log("Database pegawai berhasil dimuat, jumlah data: " + dataPegawai.length);
+                })
+                .catch(error => {
+                    console.error("Gagal memuat file pegawai.json:", error);
+                });
+        } else {
+            console.log("Database pegawai berhasil dimuat secara langsung (global), jumlah data: " + dataPegawai.length);
+        }
+
+        // 3. Tangkap Elemen Input HTML
+        const nipInput = document.getElementById('nip_bawahan'); 
+        const namaInput = document.getElementById('nama_bawahan');
+        const pangkatInput = document.getElementById('pangkat');
+        const jabatanInput = document.getElementById('jabatan');
+        const jenisPegawaiInput = document.getElementById('jenis_pegawai');
+
+        // 4. Logika Pencarian Otomatis saat NIP diketik
+        nipInput.addEventListener('input', function() {
+            const nipValue = this.value;
+            
+            const pegawaiDitemukan = dataPegawai.find(p => p.nip === nipValue);
+            
+            if (pegawaiDitemukan) {
+                namaInput.value = pegawaiDitemukan.nama;
+                pangkatInput.value = pegawaiDitemukan.golru; 
+                jabatanInput.value = pegawaiDitemukan.jabatan;
+                
+                if(pegawaiDitemukan.jenis_pegawai) {
+                    let jenis = pegawaiDitemukan.jenis_pegawai.toUpperCase();
+                    if(jenis === 'PNS' || jenis === 'PPPK') {
+                        jenisPegawaiInput.value = jenis;
+                    }
+                }
+
+                // Ubah warna validasi sukses menjadi secondary-blue
+                nipInput.style.borderColor = "var(--secondary-blue)";
+            } else {
+                namaInput.value = "";
+                pangkatInput.value = "";
+                jabatanInput.value = "";
+                jenisPegawaiInput.value = "";
+                nipInput.style.borderColor = "var(--border-color)";
+            }
+        });
+
+        // 5. Masukkan URL Web App Google Apps Script Anda (Link Baru)
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxBY9zpJEDI-tY1ImE-YVjEInRJMSrIIEtZHNs-EbiRCpbk9QmJa1Da1Ooabs7MgirP/exec'; 
+        const form = document.getElementById('formBawahan'); 
+        const btnSubmit = document.querySelector('.btn-submit');
+
+        // 6. Jalankan fungsi ini saat tombol diklik
+        form.addEventListener('submit', e => {
+            e.preventDefault(); 
+            
+            let originalBtnText = btnSubmit.innerHTML;
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sedang Mengirim...';
+            btnSubmit.disabled = true;
+
+            const formData = new FormData(form);
+            const userStr = sessionStorage.getItem('penilaian360_user');
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                formData.append('nip_penilai', user.nip);
+                formData.append('nip_bawahan_penilai', user.nip);
+            }
+
+            fetch(scriptURL, { 
+                method: 'POST', 
+                body: formData,
+                mode: 'no-cors' 
+            })
+            .then(response => {
+                alert('Berhasil! Data Penilaian telah tersimpan ke dalam tab Atasan.');
+                
+                // Reset form dan Select2
+                form.reset(); 
+                $('#satuanKerja').val(null).trigger('change'); 
+                
+                nipInput.style.borderColor = "var(--border-color)";
+                btnSubmit.innerHTML = originalBtnText; 
+                btnSubmit.disabled = false;
+                window.scrollTo(0, 0);
+            })
+            .catch(error => {
+                alert('Gagal mengirim data. Silakan coba lagi.');
+                console.error('Error!', error.message);
+                btnSubmit.innerHTML = originalBtnText;
+                btnSubmit.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>

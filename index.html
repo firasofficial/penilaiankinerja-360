@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        (function () {
+            'use strict';
+            const userStr = sessionStorage.getItem('penilaian360_user');
+            if (!userStr) {
+                window.location.replace('login.html');
+                return;
+            }
+            const user = JSON.parse(userStr);
+            if (!user || !user.loggedIn) {
+                window.location.replace('login.html');
+                return;
+            }
+
+            // Expose global confirmLogout function
+            window.confirmLogout = function (event) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
+                    sessionStorage.removeItem('penilaian360_user');
+                    window.location.replace('login.html');
+                }
+            };
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const badge = document.getElementById('userBadge');
+                const profileName = document.getElementById('profileName');
+                const profileNip = document.getElementById('profileNip');
+
+                if (badge && profileName && profileNip) {
+                    profileName.textContent = user.nama;
+                    profileNip.textContent = 'NIP. ' + user.nip;
+                    badge.style.display = 'flex';
+                }
+            });
+        })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penilaian Perilaku Kerja 360 - Kab. Aceh Timur</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0f3e8b;
+            --secondary-blue: #2563eb;
+            --light-bg: #f8fafc;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --accent-peach: #ffdcc8;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            /* --- BACKGROUND MENARIK --- */
+            background-image: 
+                radial-gradient(circle at 90% 30%, rgba(37, 99, 235, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 10% 70%, rgba(15, 62, 139, 0.03) 0%, transparent 40%),
+                radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+            background-size: 100% 100%, 100% 100%, 24px 24px;
+            background-attachment: fixed;
+            margin: 0;
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Tampilan Header --- */
+        header {
+            background: #ffffff;
+            padding: 18px 24px;
+            border-top: 5px solid var(--accent-peach);
+            border-bottom: 2px solid var(--primary-blue);
+            box-shadow: 0 4px 20px rgba(15, 62, 139, 0.02);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-logo img {
+            width: 68px;
+            height: auto;
+            display: block;
+        }
+
+        .header-title h1 {
+            margin: 0 0 4px;
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+            letter-spacing: -0.2px;
+        }
+
+        .header-title p {
+            margin: 0;
+            font-size: 0.88rem;
+            color: #475569;
+            line-height: 1.45;
+            font-weight: 500;
+        }
+
+        .header-title strong {
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-akhlak {
+            height: 42px;
+            width: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        .header-separator {
+            width: 1px;
+            height: 38px;
+            background-color: #cbd5e1;
+            display: block;
+        }
+
+        /* --- User Profile Badge --- */
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 6px 16px 6px 8px;
+            border-radius: 100px;
+            box-shadow: 0 2px 8px rgba(15, 62, 139, 0.03);
+            position: relative;
+            z-index: 100;
+            pointer-events: auto;
+        }
+
+        .user-avatar-circle {
+            width: 36px;
+            height: 36px;
+            background-color: var(--primary-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 1.1rem;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .user-name {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+            max-width: 180px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+        }
+
+        .user-nip {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        .btn-logout {
+            background: none;
+            border: none;
+            color: #ef4444;
+            font-size: 1rem;
+            cursor: pointer !important;
+            padding: 6px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            margin-left: 6px;
+            position: relative;
+            z-index: 105;
+            pointer-events: auto;
+        }
+
+        .btn-logout:hover {
+            background: #fee2e2;
+            color: #b91c1c;
+            transform: scale(1.05);
+        }
+
+        /* --- Tampilan Hero / Info Section --- */
+        .container {
+            max-width: 1140px;
+            margin: 50px auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 2;
+            flex-grow: 1;
+        }
+
+        .info-card {
+            background: #ffffff;
+            padding: 35px 40px;
+            border-radius: 16px;
+            margin-bottom: 50px;
+            box-shadow: 0 10px 30px rgba(15, 62, 139, 0.03);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.6);
+        }
+
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 6px;
+            background-color: var(--secondary-blue);
+        }
+
+        .info-card h2 {
+            margin-top: 0;
+            color: var(--primary-blue);
+            font-size: 1.45rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .info-card p {
+            line-height: 1.7;
+            color: #475569;
+            font-size: 1.05rem;
+            margin-bottom: 20px;
+        }
+
+        .info-card em {
+            font-style: italic;
+            color: #334155;
+        }
+
+        .info-card strong {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .info-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-top: 5px;
+        }
+
+        .info-badge i {
+            font-size: 1rem;
+        }
+
+        /* --- Tampilan Grid Pilihan Peran --- */
+        .roles-section-title {
+            text-align: center;
+            margin: 45px 0 35px;
+            color: var(--text-dark);
+            font-weight: 800;
+            font-size: 1.7rem;
+            letter-spacing: -0.5px;
+        }
+
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .role-card {
+            background: #ffffff;
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            border: 1px solid rgba(226, 232, 240, 0.7);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(15, 62, 139, 0.02);
+            position: relative;
+        }
+
+        .role-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 35px rgba(15, 62, 139, 0.06);
+            border-color: rgba(37, 99, 235, 0.3);
+        }
+
+        .role-card i {
+            font-size: 3.2rem;
+            color: var(--secondary-blue);
+            margin-bottom: 22px;
+            transition: all 0.3s ease;
+        }
+
+        .role-card:hover i {
+            color: var(--primary-blue);
+            transform: scale(1.08);
+        }
+
+        .role-card h3 {
+            margin: 0 0 12px;
+            color: var(--primary-blue);
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .role-card p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* --- Tampilan Footer --- */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            position: relative;
+            z-index: 2;
+            margin-top: auto;
+        }
+
+        /* --- Responsiveness untuk Layar Mobile --- */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            .header-left {
+                flex-direction: column; 
+                gap: 10px;
+            }
+            .header-title h1 {
+                font-size: 1.3rem;
+            }
+            .logo-akhlak {
+                height: 40px; 
+                margin: 0 auto; 
+            }
+            .header-separator {
+                display: none;
+            }
+            .header-right {
+                flex-direction: column;
+                gap: 12px;
+                width: 100%;
+            }
+            .user-badge {
+                width: 100%;
+                justify-content: center;
+                box-sizing: border-box;
+            }
+            .role-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="header-left">
+                <div class="header-logo">
+                    <img src="Lambang_Kabupaten_Aceh_Timur.png" alt="Logo Kabupaten Aceh Timur">
+                </div>
+                <div class="header-title">
+                    <h1>PENILAIAN PERILAKU KERJA 360°</h1>
+                    <p>
+                        <strong>Badan Kepegawaian dan Pengembangan Sumber Daya Manusia</strong><br>
+                        Pemerintah Kabupaten Aceh Timur
+                    </p>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <img src="Logo_BerAKHLAK.png" alt="Logo Ber-AKHLAK Bangga Melayani Bangsa" class="logo-akhlak"> 
+                <div class="header-separator"></div>
+                <div class="user-badge" id="userBadge" style="display: none;">
+                    <div class="user-avatar-circle"><i class="fas fa-user"></i></div>
+                    <div class="user-details">
+                        <span class="user-name" id="profileName">Loading...</span>
+                        <span class="user-nip" id="profileNip">NIP. -</span>
+                    </div>
+                    <button class="btn-logout" id="btnLogout" type="button" onclick="confirmLogout(event)" title="Keluar dari Sistem">
+                        <i class="fas fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="info-card">
+            <h2>Tentang Penilaian 360°</h2>
+            <p>Penilaian Perilaku Kerja 360 Derajat merupakan metode penilaian berupa umpan balik <em>(feedback)</em> atas perilaku kinerja Pegawai ASN yang berasal dari <strong>Atasan, Rekan Sejawat, dan Bawahan</strong> untuk memberikan pandangan yang komprehensif dan seimbang mengenai kekuatan dan kelemahan individu pegawai.</p>
+            <div class="info-badge">
+                <i class="fas fa-info-circle"></i> Sesuai dengan KEPKA BKN 411/2025
+            </div>
+        </div>
+
+        <h2 class="roles-section-title">Pilih Peran Anda Sebagai Penilai</h2>
+        
+        <div class="role-grid">
+            <a href="form_atasan.html" class="role-card">
+                <i class="fas fa-user-tie"></i>
+                <h3>Atasan</h3>
+                <p>Form ini dipilih oleh Atasan yang akan melakukan penilaian terhadap Pegawai ASN Bawahannya.</p>
+            </a>
+
+            <a href="form_rekan.html" class="role-card">
+                <i class="fas fa-user-group"></i>
+                <h3>Rekan Sejawat</h3>
+                <p>Form ini dipilih oleh Pegawai yang akan melakukan penilaian terhadap rekan kerja / sejawat.</p>
+            </a>
+
+            <a href="form_bawahan.html" class="role-card">
+                <i class="fas fa-user-graduate"></i>
+                <h3>Bawahan</h3>
+                <p>Form ini dipilih oleh Pegawai ASN yang akan melakukan penilaian terhadap Atasan Langsungnya.</p>
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 BKPSDM Pemerintah Kabupaten Aceh Timur.<br>
+        Sistem Informasi Kinerja Aparatur
+    </footer>
+
+</body>
+</html>

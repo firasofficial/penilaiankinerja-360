@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Penilaian Perilaku Kerja 360° | BKPSDM Aceh Timur</title>
+    <meta name="description" content="Halaman login Sistem Penilaian Perilaku Kerja 360 Derajat BKPSDM Pemerintah Kabupaten Aceh Timur.">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #1e40af;
+            --secondary-blue: #3b82f6;
+            --light-bg: #f4f7f9;
+            --text-dark: #1f2937;
+            --accent-green: #10b981;
+            --error-red: #ef4444;
+            --warning-amber: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background-color: #0b0f19;
+            background-image: 
+                radial-gradient(circle at 0% 0%, #1e1b4b 0%, transparent 50%),
+                radial-gradient(circle at 100% 0%, #022c22 0%, transparent 50%),
+                radial-gradient(circle at 50% 100%, #172554 0%, transparent 60%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glowing Blobs */
+        .glowing-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.45;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .blob-1 {
+            top: 10%;
+            left: 15%;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, #3b82f6 0%, #1e40af 100%);
+            animation: floatBlob1 25s infinite alternate ease-in-out;
+        }
+
+        .blob-2 {
+            bottom: 10%;
+            right: 15%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #10b981 0%, #047857 100%);
+            animation: floatBlob2 30s infinite alternate ease-in-out;
+        }
+
+        .blob-3 {
+            top: 40%;
+            left: 50%;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, #8b5cf6 0%, #6d28d9 100%);
+            animation: floatBlob3 20s infinite alternate ease-in-out;
+            opacity: 0.25;
+        }
+
+        @keyframes floatBlob1 {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(80px, 60px) scale(1.15); }
+            100% { transform: translate(-40px, 120px) scale(0.9); }
+        }
+
+        @keyframes floatBlob2 {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-100px, -50px) scale(0.85); }
+            100% { transform: translate(60px, -110px) scale(1.1); }
+        }
+
+        @keyframes floatBlob3 {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(40px, -80px) scale(1.2); }
+            100% { transform: translate(-80px, 40px) scale(0.95); }
+        }
+
+        /* Sleek Grid Overlay */
+        .grid-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center center;
+            z-index: 2;
+            pointer-events: none;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 90%);
+            -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 90%);
+        }
+
+        /* === CARD WRAPPER === */
+        .login-wrapper {
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+            z-index: 10;
+            animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* === HEADER LOGO AREA === */
+        .login-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logos-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+
+        .logos-row img {
+            filter: drop-shadow(0 8px 24px rgba(0,0,0,0.5));
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .logos-row img:hover {
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        .logo-lambang {
+            width: 76px;
+            height: auto;
+        }
+
+        .logo-akhlak {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
+            background-color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .login-header h1 {
+            color: #ffffff;
+            font-family: 'Outfit', 'Inter', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            line-height: 1.4;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, #ffffff 60%, #93c5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-header p {
+            color: #94a3b8;
+            font-size: 0.88rem;
+            margin-top: 6px;
+            font-weight: 500;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.4;
+        }
+
+        /* === CARD === */
+        .login-card {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 28px;
+            padding: 44px 44px 38px;
+            box-shadow:
+                0 30px 60px rgba(0, 0, 0, 0.5),
+                0 0 100px rgba(59, 130, 246, 0.12),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #3b82f6, #10b981, #8b5cf6, transparent);
+            background-size: 200% 100%;
+            animation: shimmer 4s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .card-title {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .card-title .icon-lock {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: 
+                0 8px 24px rgba(59,130,246,0.4),
+                0 0 0 1px rgba(255,255,255,0.2) inset;
+            transition: transform 0.3s ease;
+        }
+
+        .card-title:hover .icon-lock {
+            transform: rotate(-10deg) scale(1.05);
+        }
+
+        .card-title .icon-lock i {
+            font-size: 1.6rem;
+            color: white;
+        }
+
+        .card-title h2 {
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        .card-title p {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-top: 6px;
+        }
+
+        /* === FLOATING LABEL FORM ELEMENTS === */
+        .form-group-custom {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .input-wrapper-custom {
+            position: relative;
+        }
+
+        .floating-input {
+            width: 100%;
+            padding: 22px 14px 8px 44px;
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: #ffffff;
+            background: rgba(15, 23, 42, 0.4);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+
+        .floating-input:focus {
+            border-color: var(--secondary-blue);
+            background: rgba(15, 23, 42, 0.7);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+        }
+
+        .floating-label {
+            position: absolute;
+            left: 44px;
+            top: 15px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #94a3b8;
+            pointer-events: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 17px;
+            color: #94a3b8;
+            font-size: 1.05rem;
+            transition: color 0.25s;
+            pointer-events: none;
+        }
+
+        /* Floating logic */
+        .floating-input:focus ~ .floating-label,
+        .floating-input:not(:placeholder-shown) ~ .floating-label {
+            top: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #60a5fa;
+        }
+
+        .floating-input:focus ~ .input-icon {
+            color: #60a5fa;
+        }
+
+        .floating-input.has-toggle {
+            padding-right: 46px;
+        }
+
+        .input-wrapper-custom .toggle-password {
+            position: absolute;
+            right: 16px;
+            top: 16px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 1.05rem;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+
+        .input-wrapper-custom .toggle-password:hover {
+            color: #60a5fa;
+        }
+
+        /* === ALERT MESSAGES === */
+        .alert {
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: #fca5a5;
+            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.08);
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: #a7f3d0;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.08);
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #bfdbfe;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.08);
+        }
+
+        .alert i {
+            margin-top: 2px;
+            flex-shrink: 0;
+            font-size: 1.05rem;
+        }
+
+        .alert-hidden {
+            display: none;
+        }
+
+        /* === BUTTONS === */
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Pulsing shine effect */
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: skewX(-25deg);
+            transition: none;
+        }
+
+        .btn-login:hover::before {
+            animation: shine 1.5s infinite;
+        }
+
+        @keyframes shine {
+            100% { left: 200%; }
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.5);
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+        }
+
+        .btn-login:active {
+            transform: translateY(1px);
+        }
+
+        .btn-login.loading {
+            pointer-events: none;
+            opacity: 0.85;
+        }
+
+        .btn-login .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            display: none;
+        }
+
+        .btn-login.loading .spinner { display: block; }
+        .btn-login.loading .btn-text { display: none; }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* === CHANGE PASSWORD PANEL === */
+        .change-password-panel {
+            margin-top: 28px;
+            padding-top: 24px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.15);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .change-password-panel h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fbbf24;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .change-password-panel h3 i {
+            color: #fbbf24;
+        }
+
+        .change-password-panel p {
+            font-size: 0.82rem;
+            color: #94a3b8;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .btn-change-pass {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 8px 20px rgba(16,185,129,0.25);
+        }
+
+        .btn-change-pass:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(16,185,129,0.4);
+            background: linear-gradient(135deg, #047857, #059669);
+        }
+
+        /* === MODAL UBAH PASSWORD === */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 8, 16, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .modal-overlay.hidden {
+            display: none;
+        }
+
+        .modal-card {
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            padding: 38px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 
+                0 30px 60px rgba(0,0,0,0.6),
+                0 0 0 1px rgba(255,255,255,0.05) inset;
+            animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.92) translateY(10px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .modal-header h2 i {
+            color: #3b82f6;
+        }
+
+        .btn-close-modal {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn-close-modal:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            transform: rotate(90deg);
+        }
+
+        .modal-nip-info {
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.88rem;
+            color: #93c5fd;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-save-password {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
+        }
+
+        .btn-save-password:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(59, 130, 246, 0.45);
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+        }
+
+        /* === FOOTER === */
+        .login-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 0.8rem;
+            line-height: 1.6;
+            z-index: 10;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 36px 24px 30px;
+            }
+            .login-header h1 {
+                font-size: 1.15rem;
+            }
+            .logo-lambang {
+                width: 64px;
+            }
+            .logo-akhlak {
+                height: 46px;
+            }
+            .modal-card {
+                padding: 30px 20px;
+            }
+        }
+
+        /* === NEW FUNCTIONAL STYLES === */
+        select.floating-input {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='%2394a3b8' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            cursor: pointer;
+        }
+        
+        select.floating-input option {
+            background: #0f172a;
+            color: white;
+        }
+
+        .input-action-btn {
+            position: absolute;
+            right: 8px;
+            top: 7px;
+            padding: 9px 16px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+            z-index: 10;
+        }
+
+        .input-action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
+        .input-action-btn:active {
+            transform: translateY(0);
+        }
+
+        .floating-input.has-action-btn {
+            padding-right: 115px;
+        }
+
+        .login-links {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.85rem;
+        }
+
+        .login-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .login-links a:hover {
+            color: #60a5fa;
+            text-shadow: 0 0 8px rgba(96, 165, 250, 0.3);
+        }
+
+        .step-container {
+            display: none;
+            animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .step-container.active {
+            display: block;
+        }
+
+        @keyframes slideDownFade {
+            from { opacity: 0; transform: translateY(-15px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Read-only input state visual */
+        .floating-input[readonly] {
+            opacity: 0.7;
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.08);
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient background animations -->
+    <div class="glowing-blob blob-1"></div>
+    <div class="glowing-blob blob-2"></div>
+    <div class="glowing-blob blob-3"></div>
+    <div class="grid-overlay"></div>
+
+    <div class="login-wrapper">
+
+        <!-- Header Instansi -->
+        <div class="login-header">
+            <div class="logos-row">
+                <img src="Lambang_Kabupaten_Aceh_Timur.png" alt="Logo Kabupaten Aceh Timur" class="logo-lambang">
+                <img src="Logo_BerAKHLAK.png" alt="Logo BerAKHLAK" class="logo-akhlak">
+            </div>
+            <h1>Penilaian Perilaku Kerja 360&deg;</h1>
+            <p>Badan Kepegawaian dan Pengembangan Sumber Daya Manusia &mdash; Kab. Aceh Timur</p>
+        </div>
+
+        <!-- Card Login -->
+        <div class="login-card">
+            <div class="card-title">
+                <div class="icon-lock">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h2>Masuk ke Sistem</h2>
+                <p>Silakan masukkan NIP dan password Anda</p>
+            </div>
+
+            <!-- Alert Box -->
+            <div id="alertBox" class="alert alert-hidden" role="alert" aria-live="polite">
+                <i id="alertIcon" class="fas fa-circle-exclamation"></i>
+                <span id="alertMsg"></span>
+            </div>
+
+            <!-- Form Login -->
+            <form id="loginForm" novalidate>
+                <div class="form-group-custom">
+                    <div class="input-wrapper-custom">
+                        <input
+                            type="text"
+                            id="nip"
+                            name="nip"
+                            placeholder=" "
+                            inputmode="numeric"
+                            maxlength="25"
+                            autocomplete="username"
+                            class="floating-input"
+                            required
+                        >
+                        <i class="fas fa-id-card input-icon"></i>
+                        <label for="nip" class="floating-label">NIP (Nomor Induk Pegawai)</label>
+                    </div>
+                </div>
+
+                <div class="form-group-custom">
+                    <div class="input-wrapper-custom">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder=" "
+                            class="floating-input has-toggle"
+                            autocomplete="current-password"
+                            required
+                        >
+                        <i class="fas fa-key input-icon"></i>
+                        <label for="password" class="floating-label">Password</label>
+                        <button type="button" class="toggle-password" id="togglePassword" aria-label="Tampilkan/sembunyikan password" tabindex="-1">
+                            <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                        </button>
+                    </div>
+                    <p style="font-size:0.78rem; color:#94a3b8; margin-top:10px; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-circle-info" style="color:#60a5fa;"></i>
+                        Password default adalah NIP Anda.
+                    </p>
+                </div>
+
+                <button type="submit" class="btn-login" id="btnLogin">
+                    <div class="spinner"></div>
+                    <span class="btn-text"><i class="fas fa-right-to-bracket"></i> &nbsp;Masuk</span>
+                </button>
+
+                <div class="login-links">
+                    <a id="btnOpenRegister"><i class="fas fa-user-plus"></i> Daftar Akun Baru</a>
+                    <a id="btnOpenForgot"><i class="fas fa-circle-question"></i> Lupa Password?</a>
+                </div>
+            </form>
+
+            <!-- Panel Ubah Password -->
+            <div class="change-password-panel" id="changePwdPanel" style="display:none;">
+                <h3><i class="fas fa-triangle-exclamation"></i> Password Tidak Sesuai?</h3>
+                <p>Jika NIP Anda terdaftar namun password tidak cocok, Anda dapat mengatur ulang password baru di sini.</p>
+                <button type="button" class="btn-change-pass" id="btnOpenChangePwd">
+                    <i class="fas fa-key"></i> Ubah Password
+                </button>
+            </div>
+        </div>
+
+        <div class="login-footer">
+            &copy; 2026 BKPSDM Pemerintah Kabupaten Aceh Timur<br>
+            Sistem Informasi Kinerja Aparatur
+        </div>
+    </div>
+
+    <!-- Modal Ubah Password -->
+    <div class="modal-overlay hidden" id="changePwdModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 id="modalTitle"><i class="fas fa-key"></i> Ubah Password</h2>
+                <button type="button" class="btn-close-modal" id="btnCloseModal" aria-label="Tutup">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="modal-nip-info" id="modalNipInfo">
+                <i class="fas fa-user"></i>
+                <span>NIP: <strong id="modalNipValue">-</strong></span>
+            </div>
+
+            <div id="modalAlertBox" class="alert alert-hidden" role="alert" aria-live="polite">
+                <i id="modalAlertIcon" class="fas fa-circle-exclamation"></i>
+                <span id="modalAlertMsg"></span>
+            </div>
+
+            <form id="changePwdForm" novalidate>
+                <div class="form-group-custom">
+                    <div class="input-wrapper-custom">
+                        <input
+                            type="password"
+                            id="newPassword"
+                            placeholder=" "
+                            class="floating-input has-toggle"
+                            minlength="6"
+                            autocomplete="new-password"
+                            required
+                        >
+                        <i class="fas fa-lock input-icon"></i>
+                        <label for="newPassword" class="floating-label">Password Baru (min. 6 karakter)</label>
+                        <button type="button" class="toggle-password" id="toggleNewPwd" tabindex="-1" aria-label="Tampilkan/sembunyikan">
+                            <i class="fas fa-eye" id="toggleNewPwdIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group-custom">
+                    <div class="input-wrapper-custom">
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            placeholder=" "
+                            class="floating-input has-toggle"
+                            minlength="6"
+                            autocomplete="new-password"
+                            required
+                        >
+                        <i class="fas fa-lock input-icon"></i>
+                        <label for="confirmPassword" class="floating-label">Konfirmasi Password Baru</label>
+                        <button type="button" class="toggle-password" id="toggleConfirmPwd" tabindex="-1" aria-label="Tampilkan/sembunyikan">
+                            <i class="fas fa-eye" id="toggleConfirmPwdIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-save-password" id="btnSavePassword">
+                    <i class="fas fa-floppy-disk"></i> Simpan Password Baru
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Registrasi Akun Baru -->
+    <div class="modal-overlay hidden" id="registerModal" role="dialog" aria-modal="true" aria-labelledby="registerTitle">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 id="registerTitle"><i class="fas fa-user-plus"></i> Daftar Akun Baru</h2>
+                <button type="button" class="btn-close-modal" id="btnCloseRegisterModal" aria-label="Tutup">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="registerAlertBox" class="alert alert-hidden" role="alert" aria-live="polite">
+                <i id="registerAlertIcon" class="fas fa-circle-exclamation"></i>
+                <span id="registerAlertMsg"></span>
+            </div>
+
+            <form id="registerForm" novalidate>
+                <!-- Langkah 1: Input NIP & Cek -->
+                <div class="form-group-custom">
+                    <div class="input-wrapper-custom">
+                        <input
+                            type="text"
+                            id="regNip"
+                            placeholder=" "
+                            class="floating-input has-action-btn"
+                            maxlength="25"
+                            required
+                        >
+                        <i class="fas fa-id-card input-icon"></i>
+                        <label for="regNip" class="floating-label">NIP Pegawai</label>
+                        <button type="button" class="input-action-btn" id="btnCheckRegNip">Cek NIP</button>
+                    </div>
+                </div>
+
+                <!-- Langkah 2: Bidang yang terkunci (muncul setelah Cek NIP sukses) -->
+                <div class="step-container" id="regFieldsStep">
+                    <div class="form-group-custom">
+                        <div class="input-wrapper-custom">
+                            <input
+                                type="text"
+                                id="regNama"
+                                placeholder=" "
+                                class="floating-input"
+                                readonly
+                            >
+                            <i class="fas fa-user input-icon"></i>
+                            <label for="regNama" class="floating-label">Nama Pegawai (Otomatis)</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group-custom">
+                        <div class="input-wrapper-custom">
+                            <input
+                                type="password"
+                                id="regPassword"
+                                placeholder=" "
+                                class="floating-input has-toggle"
+                                minlength="6"
+                                required
+                            >
+                            <i class="fas fa-lock input-icon"></i>
+                            <label for="regPassword" class="floating-label">Password Baru</label>
+                            <button type="button" class="toggle-password" id="toggleRegPwd" tabindex="-1">
+                                <i class="fas fa-eye" id="toggleRegPwdIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group-custom">
+                        <div class="input-wrapper-custom">
+                            <input
+                                type="password"
+                                id="regConfirmPassword"
+                                placeholder=" "
+                                class="floating-input has-toggle"
+                                minlength="6"
+                                required
+                            >
+                            <i class="fas fa-lock input-icon"></i>
+                            <label for="regConfirmPassword" class="floating-label">Konfirmasi Password Baru</label>
+                            <button type="button" class="toggle-password" id="toggleRegConfPwd" tabindex="-1">
+                                <i class="fas fa-eye" id="toggleRegConfPwdIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group-custom">
+                        <div class="input-wrapper-custom">
+                            <select id="regQuestion" class="floating-input" required>
+                                <option value="" disabled selected hidden>Pilih Pertanyaan Pengaman...</option>
+                                <option value="Siapa nama guru SD favorit Anda?">Siapa nama guru SD favorit Anda?</option>
+                                <option value="Apa nama kota tempat Anda lahir?">Apa nama kota tempat Anda lahir?</option>
+                                <option value="Apa nama hewan peliharaan pertama Anda?">Apa nama hewan peliharaan pertama Anda?</option>
+                                <option value="Siapa nama sahabat masa kecil Anda?">Siapa nama sahabat masa kecil Anda?</option>
+                            </select>
+                            <i class="fas fa-circle-question input-icon"></i>
+                            <label for="regQuestion" class="floating-label">Pertanyaan Pengaman</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group-custom">
+                        <div class="input-wrapper-custom">
+                            <input
+                                type="text"
+                                id="regAnswer"
+                                placeholder=" "
+                                class="floating-input"
+                                required
+                            >
+                            <i class="fas fa-comment-dots input-icon"></i>
+                            <label for="regAnswer" class="floating-label">Jawaban Pengaman</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-save-password" id="btnSubmitRegister">
+                        <i class="fas fa-user-check"></i> Daftarkan Akun
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Lupa Password -->
+    <div class="modal-overlay hidden" id="forgotPwdModal" role="dialog" aria-modal="true" aria-labelledby="forgotTitle">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 id="forgotTitle"><i class="fas fa-circle-question"></i> Lupa Password</h2>
+                <button type="button" class="btn-close-modal" id="btnCloseForgotModal" aria-label="Tutup">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="forgotAlertBox" class="alert alert-hidden" role="alert" aria-live="polite">
+                <i id="forgotAlertIcon" class="fas fa-circle-exclamation"></i>
+                <span id="forgotAlertMsg"></span>
+            </div>
+
+            <!-- Langkah 1: Input NIP & Cek -->
+            <div class="step-container active" id="forgotStep1">
+                <div class="form-group-custom">
+                    <div class="input-wrapper-custom">
+                        <input
+                            type="text"
+                            id="forgotNip"
+                            placeholder=" "
+                            class="floating-input has-action-btn"
+                            maxlength="25"
+                            required
+                        >
+                        <i class="fas fa-id-card input-icon"></i>
+                        <label for="forgotNip" class="floating-label">Masukkan NIP Anda</label>
+                        <button type="button" class="input-action-btn" id="btnCheckForgotNip">Cek Akun</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Langkah 2: Jawab Pertanyaan Pengaman -->
+            <div class="step-container" id="forgotStep2">
+                <div class="modal-nip-info" style="margin-bottom:16px;">
+                    <i class="fas fa-circle-info"></i>
+                    <span>Pertanyaan Pengaman untuk NIP: <strong id="forgotNipVal">-</strong></span>
+                </div>
+                <div class="form-group-custom">
+                    <div class="input-wrapper-custom">
+                        <input
+                            type="text"
+                            id="forgotQuestionDisplay"
+                            placeholder=" "
+                            class="floating-input"
+                            readonly
+                        >
+                        <i class="fas fa-circle-question input-icon"></i>
+                        <label for="forgotQuestionDisplay" class="floating-label">Pertanyaan Pengaman</label>
+                    </div>
+                </div>
+                <div class="form-group-custom">
+                    <div class="input-wrapper-custom">
+                        <input
+                            type="text"
+                            id="forgotAnswer"
+                            placeholder=" "
+                            class="floating-input"
+                            required
+                        >
+                        <i class="fas fa-comment-dots input-icon"></i>
+                        <label for="forgotAnswer" class="floating-label">Jawaban Anda</label>
+                    </div>
+                </div>
+                <button type="button" class="btn-save-password" id="btnVerifyAnswer">
+                    <i class="fas fa-key"></i> Verifikasi Jawaban
+                </button>
+            </div>
+
+            <!-- Langkah 3: Isi Password Baru -->
+            <div class="step-container" id="forgotStep3">
+                <form id="forgotResetForm" novalidate>
+                    <div class="form-group-custom">
+                        <div class="input-wrapper-custom">
+                            <input
+                                type="password"
+                                id="forgotNewPassword"
+                                placeholder=" "
+                                class="floating-input has-toggle"
+                                minlength="6"
+                                required
+                            >
+                            <i class="fas fa-lock input-icon"></i>
+                            <label for="forgotNewPassword" class="floating-label">Password Baru (min. 6 karakter)</label>
+                            <button type="button" class="toggle-password" id="toggleForgotPwd" tabindex="-1">
+                                <i class="fas fa-eye" id="toggleForgotPwdIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group-custom">
+                        <div class="input-wrapper-custom">
+                            <input
+                                type="password"
+                                id="forgotConfirmPassword"
+                                placeholder=" "
+                                class="floating-input has-toggle"
+                                minlength="6"
+                                required
+                            >
+                            <i class="fas fa-lock input-icon"></i>
+                            <label for="forgotConfirmPassword" class="floating-label">Konfirmasi Password Baru</label>
+                            <button type="button" class="toggle-password" id="toggleForgotConfPwd" tabindex="-1">
+                                <i class="fas fa-eye" id="toggleForgotConfPwdIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-save-password" id="btnSaveForgotPwd">
+                        <i class="fas fa-floppy-disk"></i> Simpan Password Baru
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="pegawai.js"></script>
+    <script>
+    (function () {
+        'use strict';
+
+        const CUSTOM_PWD_KEY = 'penilaian360_custom_passwords';
+        const REGISTERED_USERS_KEY = 'penilaian360_registered_users';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxBY9zpJEDI-tY1ImE-YVjEInRJMSrIIEtZHNs-EbiRCpbk9QmJa1Da1Ooabs7MgirP/exec';
+
+        // Hash sederhana untuk local storage (bukan kriptografi)
+        function simpleHash(str) {
+            let hash = 5381;
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) + hash) ^ str.charCodeAt(i);
+                hash = hash >>> 0;
+            }
+            return hash.toString(36);
+        }
+
+        let pegawaiData = [];
+        let dataLoaded = false;
+
+        async function loadPegawai() {
+            if (typeof window.dataPegawaiGlobal !== 'undefined' && Array.isArray(window.dataPegawaiGlobal)) {
+                pegawaiData = window.dataPegawaiGlobal;
+                dataLoaded = true;
+                console.log('Data pegawai loaded successfully from local script (pegawai.js).');
+                return;
+            }
+            try {
+                const resp = await fetch('pegawai.json');
+                if (!resp.ok) throw new Error('Gagal memuat data');
+                pegawaiData = await resp.json();
+                dataLoaded = true;
+            } catch (e) {
+                console.warn('Gagal memuat pegawai.json via fetch (biasanya karena CORS pada protokol file://). Mengaktifkan data pegawai fallback untuk testing lokal...');
+                pegawaiData = [
+                    {
+                        "nip": "198504012010031002",
+                        "nama": "MUHAMMAD FAUZI",
+                        "jabatan": "Pengawas Sekolah Ahli Madya",
+                        "satuan kerja": "ACEH",
+                        "unit kerja": "DINAS PENDIDIKAN ACEH"
+                    },
+                    {
+                        "nip": "199001012015011001",
+                        "nama": "BUDI SANTOSO",
+                        "jabatan": "Pranata Komputer",
+                        "satuan kerja": "BKPSDM Aceh Timur",
+                        "unit kerja": "BKPSDM Aceh Timur"
+                    }
+                ];
+                dataLoaded = true;
+            }
+        }
+
+        function showAlert(boxId, msgId, iconId, type, msg) {
+            const box = document.getElementById(boxId);
+            const msgEl = document.getElementById(msgId);
+            const icon = document.getElementById(iconId);
+            if (!box || !msgEl || !icon) return;
+            box.classList.remove('alert-error', 'alert-success', 'alert-info', 'alert-hidden');
+            box.classList.add('alert-' + type);
+            const icons = { error: 'fa-circle-exclamation', success: 'fa-circle-check', info: 'fa-circle-info' };
+            icon.className = 'fas ' + (icons[type] || 'fa-circle-info');
+            msgEl.innerHTML = msg;
+        }
+
+        function hideAlert(boxId) {
+            const box = document.getElementById(boxId);
+            if (box) box.classList.add('alert-hidden');
+        }
+
+        // --- DATABASE REGISTERED USERS ---
+        function getRegisteredUsers() {
+            try { return JSON.parse(localStorage.getItem(REGISTERED_USERS_KEY) || '[]'); }
+            catch { return []; }
+        }
+
+        function saveRegisteredUser(userObj) {
+            const users = getRegisteredUsers();
+            const index = users.findIndex(u => String(u.nip).trim() === String(userObj.nip).trim());
+            if (index > -1) {
+                users[index] = userObj;
+            } else {
+                users.push(userObj);
+            }
+            localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(users));
+        }
+
+        function getRegisteredUser(nip) {
+            // Cek di database baru
+            let user = getRegisteredUsers().find(u => String(u.nip).trim() === String(nip).trim());
+            if (user) return user;
+
+            // Fallback ke data custom password lama (jika ada hasil migrasi ubah password sebelumnya)
+            const oldPasswords = getCustomPasswords();
+            const oldHash = oldPasswords[nip];
+            if (oldHash) {
+                return {
+                    nip: nip,
+                    nama: "-",
+                    passwordHash: oldHash,
+                    pertanyaan: "Siapa nama guru SD favorit Anda?", // Default fallback
+                    jawabanHash: simpleHash("admin") // Default jawban fallback
+                };
+            }
+            return null;
+        }
+
+        function getCustomPasswords() {
+            try { return JSON.parse(localStorage.getItem(CUSTOM_PWD_KEY) || '{}'); }
+            catch { return {}; }
+        }
+
+        function saveCustomPassword(nip, password) {
+            const store = getCustomPasswords();
+            store[nip] = simpleHash(password);
+            localStorage.setItem(CUSTOM_PWD_KEY, JSON.stringify(store));
+        }
+
+        function getStoredHash(nip) {
+            const user = getRegisteredUser(nip);
+            return user ? user.passwordHash : null;
+        }
+
+        function authenticate(nip, password) {
+            const pegawai = pegawaiData.find(p => String(p.nip).trim() === String(nip).trim());
+            if (!pegawai) return { success: false, reason: 'nip_not_found' };
+
+            const user = getRegisteredUser(nip);
+            if (user) {
+                // Verifikasi password terhadap hash terdaftar
+                if (simpleHash(password) === user.passwordHash) return { success: true, pegawai };
+                return { success: false, reason: 'wrong_password', nipExists: true };
+            } else {
+                // Untuk login pertama kali, password default adalah NIP
+                if (password === nip) return { success: true, pegawai };
+                return { success: false, reason: 'wrong_password', nipExists: true };
+            }
+        }
+
+        function saveSession(pegawai) {
+            sessionStorage.setItem('penilaian360_user', JSON.stringify({
+                nip: pegawai.nip,
+                nama: pegawai.nama,
+                jabatan: pegawai.jabatan,
+                satuan_kerja: pegawai['satuan kerja'] || '',
+                unit_kerja: pegawai['unit kerja'] || '',
+                loggedIn: true
+            }));
+        }
+
+        function setupToggle(btnId, inputId, iconId) {
+            const btn = document.getElementById(btnId);
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (!btn || !input || !icon) return;
+            btn.addEventListener('click', function () {
+                const shown = input.type === 'text';
+                input.type = shown ? 'password' : 'text';
+                icon.className = shown ? 'fas fa-eye' : 'fas fa-eye-slash';
+            });
+        }
+
+        // Helper untuk menutup modal apa saja
+        function closeModalById(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function openModalById(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+
+            showAlert('alertBox', 'alertMsg', 'alertIcon', 'info',
+                '<i class="fas fa-spinner fa-spin"></i>&nbsp; Memuat data pegawai...');
+            await loadPegawai();
+            hideAlert('alertBox');
+
+            // Setup all toggles
+            setupToggle('togglePassword', 'password', 'togglePasswordIcon');
+            setupToggle('toggleNewPwd', 'newPassword', 'toggleNewPwdIcon');
+            setupToggle('toggleConfirmPwd', 'confirmPassword', 'toggleConfirmPwdIcon');
+            setupToggle('toggleRegPwd', 'regPassword', 'toggleRegPwdIcon');
+            setupToggle('toggleRegConfPwd', 'regConfirmPassword', 'toggleRegConfPwdIcon');
+            setupToggle('toggleForgotPwd', 'forgotNewPassword', 'toggleForgotPwdIcon');
+            setupToggle('toggleForgotConfPwd', 'forgotConfirmPassword', 'toggleForgotConfPwdIcon');
+
+            // ---- FORM LOGIN ----
+            document.getElementById('loginForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+                hideAlert('alertBox');
+
+                const nip = document.getElementById('nip').value.trim();
+                const password = document.getElementById('password').value;
+
+                if (!nip) {
+                    showAlert('alertBox', 'alertMsg', 'alertIcon', 'error', 'Harap masukkan NIP Anda.');
+                    document.getElementById('nip').focus();
+                    return;
+                }
+                if (!password) {
+                    showAlert('alertBox', 'alertMsg', 'alertIcon', 'error', 'Harap masukkan password Anda.');
+                    document.getElementById('password').focus();
+                    return;
+                }
+
+                const btnLogin = document.getElementById('btnLogin');
+                btnLogin.classList.add('loading');
+                await new Promise(r => setTimeout(r, 700));
+                btnLogin.classList.remove('loading');
+
+                if (!dataLoaded) {
+                    showAlert('alertBox', 'alertMsg', 'alertIcon', 'error',
+                        'Data pegawai belum berhasil dimuat. Silakan muat ulang halaman (F5).');
+                    return;
+                }
+
+                const result = authenticate(nip, password);
+
+                if (result.success) {
+                    showAlert('alertBox', 'alertMsg', 'alertIcon', 'success',
+                        '<i class="fas fa-circle-check"></i>&nbsp; Login berhasil! Sedang mengalihkan...');
+                    saveSession(result.pegawai);
+                    setTimeout(function () { window.location.href = 'index.html'; }, 900);
+
+                } else if (result.reason === 'nip_not_found') {
+                    showAlert('alertBox', 'alertMsg', 'alertIcon', 'error',
+                        'NIP <strong>' + nip + '</strong> tidak ditemukan dalam data pegawai. Pastikan NIP yang dimasukkan benar.');
+                    document.getElementById('changePwdPanel').style.display = 'none';
+
+                } else if (result.reason === 'wrong_password') {
+                    showAlert('alertBox', 'alertMsg', 'alertIcon', 'error',
+                        'Password salah! NIP Anda terdaftar tetapi password tidak sesuai. Mengarahkan untuk mereset password...');
+                    document.getElementById('changePwdPanel').style.display = 'block';
+                    document.getElementById('modalNipValue').textContent = nip;
+                    
+                    // Otomatis arahkan ke modal ubah password setelah 1.5 detik
+                    setTimeout(function () {
+                        document.getElementById('newPassword').value = '';
+                        document.getElementById('confirmPassword').value = '';
+                        hideAlert('modalAlertBox');
+                        openModalById('changePwdModal');
+                        document.getElementById('newPassword').focus();
+                    }, 1500);
+                }
+            });
+
+            // ---- MODAL CHANGE PASSWORD OLD ----
+            document.getElementById('btnOpenChangePwd').addEventListener('click', function () {
+                const nip = document.getElementById('nip').value.trim();
+                document.getElementById('modalNipValue').textContent = nip || '-';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                hideAlert('modalAlertBox');
+                openModalById('changePwdModal');
+                document.getElementById('newPassword').focus();
+            });
+            document.getElementById('btnCloseModal').addEventListener('click', () => closeModalById('changePwdModal'));
+
+            // ---- FORM UBAH PASSWORD OLD ----
+            document.getElementById('changePwdForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                hideAlert('modalAlertBox');
+
+                const nip = document.getElementById('nip').value.trim();
+                const newPwd = document.getElementById('newPassword').value;
+                const confPwd = document.getElementById('confirmPassword').value;
+
+                if (!nip) {
+                    showAlert('modalAlertBox', 'modalAlertMsg', 'modalAlertIcon', 'error',
+                        'Kembali ke form login dan isi NIP terlebih dahulu.');
+                    return;
+                }
+                if (newPwd.length < 6) {
+                    showAlert('modalAlertBox', 'modalAlertMsg', 'modalAlertIcon', 'error',
+                        'Password minimal 6 karakter.');
+                    document.getElementById('newPassword').focus();
+                    return;
+                }
+                if (newPwd !== confPwd) {
+                    showAlert('modalAlertBox', 'modalAlertMsg', 'modalAlertIcon', 'error',
+                        'Konfirmasi password tidak cocok. Pastikan kedua password sama.');
+                    document.getElementById('confirmPassword').focus();
+                    return;
+                }
+
+                // Simpan password
+                saveCustomPassword(nip, newPwd);
+                
+                // Daftarkan sebagai user baru dengan default pertanyaan
+                saveRegisteredUser({
+                    nip: nip,
+                    nama: "-",
+                    passwordHash: simpleHash(newPwd),
+                    pertanyaan: "Siapa nama guru SD favorit Anda?",
+                    jawabanHash: simpleHash("admin")
+                });
+
+                showAlert('modalAlertBox', 'modalAlertMsg', 'modalAlertIcon', 'success',
+                    '<i class="fas fa-circle-check"></i>&nbsp; Password berhasil diubah! Silakan login dengan password baru.');
+
+                // Kirim juga ke spreadsheet
+                const formData = new FormData();
+                formData.append('nip', nip);
+                formData.append('password', newPwd);
+                formData.append('action', 'reset_password_old');
+                fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors' }).catch(err => console.warn(err));
+
+                setTimeout(function () {
+                    document.getElementById('password').value = newPwd;
+                    closeModalById('changePwdModal');
+                    hideAlert('alertBox');
+                    document.getElementById('changePwdPanel').style.display = 'none';
+                    showAlert('alertBox', 'alertMsg', 'alertIcon', 'info',
+                        'Password baru telah diatur. Klik <strong>Masuk</strong> untuk melanjutkan.');
+                }, 1500);
+            });
+
+
+            // ==========================================
+            //              REGISTRASI FLOW
+            // ==========================================
+            const regNipInput = document.getElementById('regNip');
+            const btnCheckRegNip = document.getElementById('btnCheckRegNip');
+            const regFieldsStep = document.getElementById('regFieldsStep');
+            const regNamaInput = document.getElementById('regNama');
+
+            // Buka Modal Registrasi
+            document.getElementById('btnOpenRegister').addEventListener('click', function () {
+                regNipInput.value = '';
+                regNamaInput.value = '';
+                document.getElementById('regPassword').value = '';
+                document.getElementById('regConfirmPassword').value = '';
+                document.getElementById('regQuestion').value = '';
+                document.getElementById('regAnswer').value = '';
+                regFieldsStep.classList.remove('active');
+                hideAlert('registerAlertBox');
+                openModalById('registerModal');
+                regNipInput.focus();
+            });
+
+            document.getElementById('btnCloseRegisterModal').addEventListener('click', () => closeModalById('registerModal'));
+
+            // Aksi Cek NIP di Registrasi
+            btnCheckRegNip.addEventListener('click', function () {
+                hideAlert('registerAlertBox');
+                const nipVal = regNipInput.value.trim();
+
+                if (!nipVal) {
+                    showAlert('registerAlertBox', 'registerAlertMsg', 'registerAlertIcon', 'error', 'Harap masukkan NIP Anda.');
+                    regNipInput.focus();
+                    return;
+                }
+
+                if (!dataLoaded) {
+                    showAlert('registerAlertBox', 'registerAlertMsg', 'registerAlertIcon', 'error', 'Data pegawai belum siap. Silakan coba sebentar lagi.');
+                    return;
+                }
+
+                // 1. Cek di pegawai.json
+                const pegawai = pegawaiData.find(p => String(p.nip).trim() === nipVal);
+                if (!pegawai) {
+                    showAlert('registerAlertBox', 'registerAlertMsg', 'registerAlertIcon', 'error', 
+                        'NIP tidak ditemukan dalam database pegawai BKPSDM.');
+                    regFieldsStep.classList.remove('active');
+                    return;
+                }
+
+                // 2. Cek apakah sudah terdaftar
+                const existing = getRegisteredUsers().find(u => String(u.nip).trim() === nipVal);
+                if (existing) {
+                    showAlert('registerAlertBox', 'registerAlertMsg', 'registerAlertIcon', 'error', 
+                        'Akun NIP ini sudah pernah terdaftar sebelumnya. Silakan login atau gunakan menu Lupa Password jika Anda lupa sandi.');
+                    regFieldsStep.classList.remove('active');
+                    return;
+                }
+
+                // Sukses
+                regNamaInput.value = pegawai.nama;
+                regFieldsStep.classList.add('active');
+                showAlert('registerAlertBox', 'registerAlertMsg', 'registerAlertIcon', 'success', 
+                    'NIP terverifikasi! Silakan lengkapi formulir di bawah ini.');
+                document.getElementById('regPassword').focus();
+            });
+
+            // Form Registrasi Submit
+            document.getElementById('registerForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                hideAlert('registerAlertBox');
+
+                const nipVal = regNipInput.value.trim();
+                const namaVal = regNamaInput.value;
+                const pwdVal = document.getElementById('regPassword').value;
+                const confPwdVal = document.getElementById('regConfirmPassword').value;
+                const questionVal = document.getElementById('regQuestion').value;
+                const answerVal = document.getElementById('regAnswer').value.trim();
+
+                if (!pwdVal || pwdVal.length < 6) {
+                    showAlert('registerAlertBox', 'registerAlertMsg', 'registerAlertIcon', 'error', 'Password minimal 6 karakter.');
+                    document.getElementById('regPassword').focus();
+                    return;
+                }
+
+                if (pwdVal !== confPwdVal) {
+                    showAlert('registerAlertBox', 'registerAlertMsg', 'registerAlertIcon', 'error', 'Konfirmasi password tidak cocok.');
+                    document.getElementById('regConfirmPassword').focus();
+                    return;
+                }
+
+                if (!questionVal) {
+                    showAlert('registerAlertBox', 'registerAlertMsg', 'registerAlertIcon', 'error', 'Pilih salah satu pertanyaan pengaman.');
+                    document.getElementById('regQuestion').focus();
+                    return;
+                }
+
+                if (!answerVal) {
+                    showAlert('registerAlertBox', 'registerAlertMsg', 'registerAlertIcon', 'error', 'Silakan isi jawaban pengaman Anda.');
+                    document.getElementById('regAnswer').focus();
+                    return;
+                }
+
+                // Simpan local
+                saveRegisteredUser({
+                    nip: nipVal,
+                    nama: namaVal,
+                    passwordHash: simpleHash(pwdVal),
+                    pertanyaan: questionVal,
+                    jawabanHash: simpleHash(answerVal.toLowerCase())
+                });
+
+                showAlert('registerAlertBox', 'registerAlertMsg', 'registerAlertIcon', 'success', 
+                    '<i class="fas fa-circle-check"></i>&nbsp; Registrasi berhasil! Mengalihkan ke login...');
+
+                // Kirim data ke Google Sheets
+                const formData = new FormData();
+                formData.append('nip', nipVal);
+                formData.append('nama', namaVal);
+                formData.append('password', pwdVal);
+                formData.append('pertanyaan', questionVal);
+                formData.append('jawaban', answerVal);
+                formData.append('action', 'register');
+
+                fetch(scriptURL, {
+                    method: 'POST',
+                    body: formData,
+                    mode: 'no-cors'
+                }).catch(err => console.warn('Gagal sinkronisasi Google Sheet:', err));
+
+                setTimeout(function () {
+                    document.getElementById('nip').value = nipVal;
+                    document.getElementById('password').value = pwdVal;
+                    closeModalById('registerModal');
+                    hideAlert('alertBox');
+                    showAlert('alertBox', 'alertMsg', 'alertIcon', 'success', 'Akun berhasil terdaftar! Silakan klik Masuk.');
+                }, 1500);
+            });
+
+
+            // ==========================================
+            //             LUPA PASSWORD FLOW
+            // ==========================================
+            const forgotNipInput = document.getElementById('forgotNip');
+            const btnCheckForgotNip = document.getElementById('btnCheckForgotNip');
+            const forgotStep1 = document.getElementById('forgotStep1');
+            const forgotStep2 = document.getElementById('forgotStep2');
+            const forgotStep3 = document.getElementById('forgotStep3');
+            const forgotNipValEl = document.getElementById('forgotNipVal');
+            const forgotQuestionDisplay = document.getElementById('forgotQuestionDisplay');
+            const forgotAnswerInput = document.getElementById('forgotAnswer');
+            const btnVerifyAnswer = document.getElementById('btnVerifyAnswer');
+
+            // Buka Modal Lupa Password
+            document.getElementById('btnOpenForgot').addEventListener('click', function () {
+                forgotNipInput.value = '';
+                forgotAnswerInput.value = '';
+                document.getElementById('forgotNewPassword').value = '';
+                document.getElementById('forgotConfirmPassword').value = '';
+                forgotStep1.classList.add('active');
+                forgotStep2.classList.remove('active');
+                forgotStep3.classList.remove('active');
+                hideAlert('forgotAlertBox');
+                openModalById('forgotPwdModal');
+                forgotNipInput.focus();
+            });
+
+            document.getElementById('btnCloseForgotModal').addEventListener('click', () => closeModalById('forgotPwdModal'));
+
+            // Langkah 1: Cek NIP di Lupa Password
+            btnCheckForgotNip.addEventListener('click', function () {
+                hideAlert('forgotAlertBox');
+                const nipVal = forgotNipInput.value.trim();
+
+                if (!nipVal) {
+                    showAlert('forgotAlertBox', 'forgotAlertMsg', 'forgotAlertIcon', 'error', 'Harap masukkan NIP Anda.');
+                    forgotNipInput.focus();
+                    return;
+                }
+
+                const user = getRegisteredUser(nipVal);
+                if (!user) {
+                    showAlert('forgotAlertBox', 'forgotAlertMsg', 'forgotAlertIcon', 'error', 
+                        'NIP ini belum terdaftar di sistem kami. Harap lakukan pendaftaran terlebih dahulu.');
+                    return;
+                }
+
+                // Pindah ke Langkah 2
+                forgotNipValEl.textContent = user.nip;
+                forgotQuestionDisplay.value = user.pertanyaan;
+                forgotStep1.classList.remove('active');
+                forgotStep2.classList.add('active');
+                forgotAnswerInput.focus();
+            });
+
+            // Langkah 2: Verifikasi Jawaban
+            btnVerifyAnswer.addEventListener('click', function () {
+                hideAlert('forgotAlertBox');
+                const nipVal = forgotNipInput.value.trim();
+                const answerVal = forgotAnswerInput.value.trim().toLowerCase();
+
+                if (!answerVal) {
+                    showAlert('forgotAlertBox', 'forgotAlertMsg', 'forgotAlertIcon', 'error', 'Harap masukkan jawaban Anda.');
+                    forgotAnswerInput.focus();
+                    return;
+                }
+
+                const user = getRegisteredUser(nipVal);
+                if (simpleHash(answerVal) === user.jawabanHash) {
+                    // Sukses, lanjut Langkah 3
+                    forgotStep2.classList.remove('active');
+                    forgotStep3.classList.add('active');
+                    document.getElementById('forgotNewPassword').focus();
+                } else {
+                    showAlert('forgotAlertBox', 'forgotAlertMsg', 'forgotAlertIcon', 'error', 'Jawaban pengaman salah. Silakan coba lagi.');
+                }
+            });
+
+            // Langkah 3: Simpan Password Baru
+            document.getElementById('forgotResetForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                hideAlert('forgotAlertBox');
+
+                const nipVal = forgotNipInput.value.trim();
+                const newPwdVal = document.getElementById('forgotNewPassword').value;
+                const confPwdVal = document.getElementById('forgotConfirmPassword').value;
+
+                if (!newPwdVal || newPwdVal.length < 6) {
+                    showAlert('forgotAlertBox', 'forgotAlertMsg', 'forgotAlertIcon', 'error', 'Password minimal 6 karakter.');
+                    document.getElementById('forgotNewPassword').focus();
+                    return;
+                }
+
+                if (newPwdVal !== confPwdVal) {
+                    showAlert('forgotAlertBox', 'forgotAlertMsg', 'forgotAlertIcon', 'error', 'Konfirmasi password tidak cocok.');
+                    document.getElementById('forgotConfirmPassword').focus();
+                    return;
+                }
+
+                // Update data user
+                const user = getRegisteredUser(nipVal);
+                user.passwordHash = simpleHash(newPwdVal);
+                saveRegisteredUser(user);
+
+                // Sinkronkan ke CUSTOM_PWD_KEY lama juga agar kompatibel
+                saveCustomPassword(nipVal, newPwdVal);
+
+                showAlert('forgotAlertBox', 'forgotAlertMsg', 'forgotAlertIcon', 'success', 
+                    '<i class="fas fa-circle-check"></i>&nbsp; Password berhasil diperbarui! Mengalihkan...');
+
+                // Kirim juga ke spreadsheet
+                const formData = new FormData();
+                formData.append('nip', nipVal);
+                formData.append('password', newPwdVal);
+                formData.append('action', 'reset_password');
+                fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors' }).catch(err => console.warn(err));
+
+                setTimeout(function () {
+                    document.getElementById('nip').value = nipVal;
+                    document.getElementById('password').value = newPwdVal;
+                    closeModalById('forgotPwdModal');
+                    hideAlert('alertBox');
+                    showAlert('alertBox', 'alertMsg', 'alertIcon', 'success', 'Password diperbarui! Silakan klik Masuk.');
+                }, 1500);
+            });
+
+
+            // Close modal overlays when clicking outside card or pressing Escape
+            const overlays = document.querySelectorAll('.modal-overlay');
+            overlays.forEach(overlay => {
+                overlay.addEventListener('click', function (e) {
+                    if (e.target === this) {
+                        closeModalById(this.id);
+                    }
+                });
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    overlays.forEach(overlay => closeModalById(overlay.id));
+                }
+            });
+
+        });
+
+    })();
+    </script>
+
+</body>
+</html>
