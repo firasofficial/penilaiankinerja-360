@@ -38,6 +38,79 @@
                     profileNip.textContent = 'NIP. ' + user.nip;
                     badge.style.display = 'flex';
                 }
+
+                // Restriction and Banner logic based on Jabatan
+                const jabatan = user.jabatan || '';
+                const jabLower = jabatan.toLowerCase();
+                
+                // Keywords for Condition 1 (Structural / Leaders)
+                const keywordsKondisi1 = [
+                    'kabid',
+                    'kepala bidang',
+                    'kasi',
+                    'kepala seksi',
+                    'kasubbag',
+                    'kepala subbagian',
+                    'kasubid',
+                    'kepala subbidang',
+                    'sekretaris',
+                    'kepala badan',
+                    'kepala dinas',
+                    'kepala puskesmas',
+                    'camat',
+                    'sekcam',
+                    'lurah',
+                    'direktur',
+                    'kepala tata usaha',
+                    'kepala unit',
+                    'bupati',
+                    'wakil bupati',
+                    'penjabat',
+                    'pimpinan',
+                    'kabag',
+                    'kepala bagian',
+                    'kepala sekolah'
+                ];
+                
+                const isKondisi1 = keywordsKondisi1.some(keyword => jabLower.includes(keyword));
+                
+                // Elements
+                const banner = document.getElementById('detectedJabatanBanner');
+                const txtJabatan = document.getElementById('detectedJabatanText');
+                const txtCondition = document.getElementById('detectedConditionText');
+                const badgeCondition = document.getElementById('detectedConditionBadge');
+                const grid = document.getElementById('roleGrid');
+                
+                const cardRekan = document.getElementById('roleRekan');
+                const cardBawahan = document.getElementById('roleBawahan');
+                
+                if (banner && txtJabatan && txtCondition && badgeCondition) {
+                    txtJabatan.textContent = jabatan || 'Staf / Fungsional';
+                    banner.style.display = 'flex';
+                    
+                    if (isKondisi1) {
+                        txtCondition.textContent = 'Berdasarkan jabatan struktural/pimpinan Anda, Anda diperbolehkan melakukan penilaian untuk 2 peran berikut.';
+                        badgeCondition.textContent = 'Kondisi 1: Atasan & Bawahan';
+                        badgeCondition.style.background = 'rgba(37, 99, 235, 0.1)';
+                        badgeCondition.style.color = 'var(--secondary-blue)';
+                        
+                        // Hide Rekan Sejawat
+                        if (cardRekan) cardRekan.style.display = 'none';
+                    } else {
+                        txtCondition.textContent = 'Berdasarkan jabatan staf/fungsional Anda, Anda diperbolehkan melakukan penilaian untuk 2 peran berikut.';
+                        badgeCondition.textContent = 'Kondisi 2: Atasan & Rekan Sejawat';
+                        badgeCondition.style.background = 'rgba(16, 185, 129, 0.1)';
+                        badgeCondition.style.color = '#059669';
+                        
+                        // Hide Bawahan
+                        if (cardBawahan) cardBawahan.style.display = 'none';
+                    }
+                }
+                
+                // Add the class to role-grid to make it center-balanced in 2 columns
+                if (grid) {
+                    grid.classList.add('two-roles');
+                }
             });
         })();
     </script>
@@ -79,7 +152,7 @@
             background: #ffffff;
             padding: 18px 24px;
             border-top: 5px solid var(--accent-peach);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            border-bottom: 2px solid var(--primary-blue);
             box-shadow: 0 4px 20px rgba(15, 62, 139, 0.02);
             position: relative;
             z-index: 10;
@@ -361,14 +434,45 @@
 
         /* --- Tampilan Footer --- */
         footer {
+            margin-top: auto;
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(226, 232, 240, 0.8);
             text-align: center;
-            padding: 40px 20px;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            line-height: 1.6;
             position: relative;
             z-index: 2;
-            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .footer-copyright {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .footer-copyright strong {
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        .footer-subtext {
+            margin: 0;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
         }
 
         /* --- Responsiveness untuk Layar Mobile --- */
@@ -405,6 +509,103 @@
             .role-grid {
                 grid-template-columns: 1fr;
                 gap: 20px;
+            }
+        }
+
+        /* --- Detected Jabatan Banner --- */
+        .detected-jabatan-banner {
+            background: #ffffff;
+            border-left: 5px solid var(--secondary-blue);
+            border-right: 1px solid rgba(226, 232, 240, 0.8);
+            border-top: 1px solid rgba(226, 232, 240, 0.8);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            padding: 20px 24px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 25px rgba(15, 62, 139, 0.03);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .detected-icon {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--secondary-blue);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .detected-details {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .detected-details .label {
+            margin: 0;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detected-details .value {
+            margin: 4px 0;
+            font-size: 1.15rem;
+            color: var(--primary-blue);
+            font-weight: 800;
+        }
+
+        .detected-details .desc {
+            margin: 0;
+            font-size: 0.88rem;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .detected-details .badge {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 100px;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+
+        .role-grid.two-roles {
+            grid-template-columns: repeat(2, 1fr);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .role-grid.two-roles {
+                grid-template-columns: 1fr;
+                max-width: 100%;
+            }
+            .detected-jabatan-banner {
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+                padding: 20px;
+            }
+            .detected-details {
+                text-align: center;
             }
         }
     </style>
@@ -453,21 +654,34 @@
         </div>
 
         <h2 class="roles-section-title">Pilih Peran Anda Sebagai Penilai</h2>
+
+        <!-- Banner Informasi Jabatan Terdeteksi -->
+        <div class="detected-jabatan-banner" id="detectedJabatanBanner" style="display: none;">
+            <div class="detected-icon">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <div class="detected-details">
+                <p class="label">Jabatan Terdeteksi</p>
+                <h4 class="value" id="detectedJabatanText">-</h4>
+                <p class="desc" id="detectedConditionText"></p>
+                <div class="badge" id="detectedConditionBadge">-</div>
+            </div>
+        </div>
         
-        <div class="role-grid">
-            <a href="form_atasan.html" class="role-card">
+        <div class="role-grid" id="roleGrid">
+            <a href="form_atasan.html" class="role-card" id="roleAtasan">
                 <i class="fas fa-user-tie"></i>
                 <h3>Atasan</h3>
                 <p>Form ini dipilih oleh Atasan yang akan melakukan penilaian terhadap Pegawai ASN Bawahannya.</p>
             </a>
 
-            <a href="form_rekan.html" class="role-card">
+            <a href="form_rekan.html" class="role-card" id="roleRekan">
                 <i class="fas fa-user-group"></i>
                 <h3>Rekan Sejawat</h3>
                 <p>Form ini dipilih oleh Pegawai yang akan melakukan penilaian terhadap rekan kerja / sejawat.</p>
             </a>
 
-            <a href="form_bawahan.html" class="role-card">
+            <a href="form_bawahan.html" class="role-card" id="roleBawahan">
                 <i class="fas fa-user-graduate"></i>
                 <h3>Bawahan</h3>
                 <p>Form ini dipilih oleh Pegawai ASN yang akan melakukan penilaian terhadap Atasan Langsungnya.</p>
@@ -476,8 +690,10 @@
     </div>
 
     <footer>
-        &copy; 2026 BKPSDM Pemerintah Kabupaten Aceh Timur.<br>
-        Sistem Informasi Kinerja Aparatur
+        <div class="footer-content">
+            <p class="footer-copyright">&copy; 2026 <strong>BKPSDM Pemerintah Kabupaten Aceh Timur</strong></p>
+            <p class="footer-subtext">Sistem Informasi Kinerja Aparatur</p>
+        </div>
     </footer>
 
 </body>

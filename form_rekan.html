@@ -15,6 +15,43 @@
                 window.location.replace('login.html');
                 return;
             }
+
+            // URL protection: structural/leaders (Kondisi 1) cannot access Rekan Sejawat form
+            const jabatan = user.jabatan || '';
+            const jabLower = jabatan.toLowerCase();
+            const keywordsKondisi1 = [
+                'kabid',
+                'kepala bidang',
+                'kasi',
+                'kepala seksi',
+                'kasubbag',
+                'kepala subbagian',
+                'kasubid',
+                'kepala subbidang',
+                'sekretaris',
+                'kepala badan',
+                'kepala dinas',
+                'kepala puskesmas',
+                'camat',
+                'sekcam',
+                'lurah',
+                'direktur',
+                'kepala tata usaha',
+                'kepala unit',
+                'bupati',
+                'wakil bupati',
+                'penjabat',
+                'pimpinan',
+                'kabag',
+                'kepala bagian',
+                'kepala sekolah'
+            ];
+            const isKondisi1 = keywordsKondisi1.some(keyword => jabLower.includes(keyword));
+            if (isKondisi1) {
+                alert('Jabatan Anda (' + jabatan + ') tidak diperbolehkan memilih peran Rekan Sejawat.');
+                window.location.replace('index.html');
+                return;
+            }
         })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,7 +83,7 @@
         header {
             background: white;
             padding: 15px 20px;
-            border-bottom: 4px solid var(--secondary-blue);
+            border-bottom: 2px solid var(--primary-blue);
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             position: sticky;
             top: 0;
