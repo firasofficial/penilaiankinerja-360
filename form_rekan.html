@@ -177,60 +177,62 @@
 
         /* Form Container */
         .container {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 20px;
+            max-width: 960px;
+            margin: 20px auto;
+            padding: 0 16px;
         }
 
         .form-card {
             background: white;
-            padding: 40px;
+            padding: 24px 30px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
         .form-header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
             border-bottom: 2px dashed var(--border-color);
         }
 
         .form-header h2 {
             color: var(--primary-blue);
-            margin: 0 0 10px 0;
+            margin: 0 0 6px 0;
+            font-size: 1.35rem;
         }
 
         .badge {
             background-color: #eff6ff;
             color: var(--secondary-blue);
-            padding: 5px 15px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.9rem;
+            font-size: 0.78rem;
             font-weight: 600;
             display: inline-block;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
         /* Form Layout */
         .section-title {
-            font-size: 1.1rem;
+            font-size: 0.98rem;
+            font-weight: 700;
             color: var(--text-dark);
-            margin: 25px 0 15px;
-            padding-left: 10px;
-            border-left: 4px solid var(--secondary-blue);
+            margin: 18px 0 10px;
+            padding-left: 8px;
+            border-left: 3.5px solid var(--secondary-blue);
         }
 
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 14px;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
         }
 
         .form-group.full-width {
@@ -238,104 +240,187 @@
         }
 
         label {
-            font-weight: 500;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-            color: #4b5563;
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 0.82rem;
+            color: #334155;
         }
 
         input[type="text"],
         input[type="number"],
         select {
-            padding: 12px;
+            padding: 8px 12px;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 7px;
+            font-size: 0.86rem;
             transition: border-color 0.3s;
             width: 100%;
             box-sizing: border-box;
+            height: 38px;
         }
 
         input:focus, select:focus {
             outline: none;
             border-color: var(--secondary-blue);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 0 2.5px rgba(59, 130, 246, 0.12);
         }
 
-        /* Styling Khusus Select2 agar menyatu dengan tema */
-        .select2-container {
-            width: 100% !important;
-        }
-        .select2-container .select2-selection--single {
-            height: 44px; /* Menyesuaikan padding input lain */
+        /* Kustomisasi Select2 agar serasi dengan form */
+        .select2-container--default .select2-selection--single {
+            height: 38px;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 7px;
             display: flex;
             align-items: center;
-            font-size: 1rem;
+            font-size: 0.86rem;
+            padding-left: 5px;
             transition: all 0.3s;
         }
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            color: var(--text-dark);
-            padding-left: 12px;
-            line-height: normal;
-        }
         .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 42px;
-            right: 10px;
+            height: 38px;
+            right: 8px;
         }
-        .select2-container--default.select2-container--focus .select2-selection--single,
-        .select2-container--default.select2-container--open .select2-selection--single {
-            border-color: var(--secondary-blue);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        .select2-container--default .select2-selection--single:focus,
+        .select2-container--open .select2-selection--single {
+            border-color: var(--secondary-blue) !important;
+            box-shadow: 0 0 0 2.5px rgba(59, 130, 246, 0.12);
             outline: none;
         }
-        
-        /* Ikon Search di dalam Dropdown Select2 */
+
+        /* Menambahkan Icon Pencarian di Dropdown Select2 */
         .select2-search--dropdown {
-            padding: 12px;
             position: relative;
+            padding: 8px !important;
         }
         .select2-search--dropdown::before {
-            content: "\f002"; /* Ikon Kaca Pembesar FontAwesome */
+            content: "\f002"; /* Unicode untuk icon magnifying glass FontAwesome */
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
             position: absolute;
-            left: 22px;
+            left: 18px; 
             top: 50%;
             transform: translateY(-50%);
             color: #9ca3af;
-            z-index: 10;
+            font-size: 0.82rem;
+            pointer-events: none; /* Agar tidak memblokir klik pada input */
         }
         .select2-container--default .select2-search--dropdown .select2-search__field {
-            padding: 8px 12px 8px 35px !important; /* Memberi ruang untuk ikon */
-            border: 1px solid var(--border-color);
+            padding-left: 30px !important; /* Memberi ruang agar teks tidak menabrak icon */
             border-radius: 6px;
-            outline: none;
+            border: 1px solid var(--border-color);
+            height: 32px;
+            font-size: 0.84rem;
         }
         .select2-container--default .select2-search--dropdown .select2-search__field:focus {
             border-color: var(--secondary-blue);
+            outline: none;
+        }
+
+        /* --- Live Search Autocomplete Dropdown Styles --- */
+        .autocomplete-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            top: calc(100% + 3px);
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            max-height: 240px;
+            overflow-y: auto;
+            z-index: 1000;
+            list-style: none;
+            margin: 0;
+            padding: 4px 0;
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.15s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            text-align: left;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover, .suggestion-item.active {
+            background-color: #eff6ff;
+        }
+
+        .suggestion-name {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 0.84rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .suggestion-badge-role {
+            font-size: 0.66rem;
+            background: #e0edff;
+            color: #1e40af;
+            padding: 2px 6px;
+            border-radius: 100px;
+            font-weight: 600;
+        }
+
+        .suggestion-details {
+            font-size: 0.74rem;
+            color: #64748b;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .suggestion-nip {
+            color: #2563eb;
+            font-weight: 700;
+        }
+
+        .suggestion-jabatan {
+            color: #475569;
+        }
+
+        .suggestion-empty {
+            padding: 10px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-style: italic;
         }
 
         /* Input Peran Penilai */
         .input-peran {
             background-color: #f3f4f6;
             text-align: center;
-            font-size: 1.2rem !important;
+            font-size: 1rem !important;
             font-weight: bold;
             color: var(--primary-blue);
             cursor: not-allowed;
-            width: 80px !important;
+            width: 70px !important;
+            height: 38px !important;
             border: none !important;
             box-shadow: none !important;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 6px;
+            border-radius: 7px;
         }
 
-        /* Bagian Instrumen */
+        /* Bagian Instrumen (Garis Putus-putus) */
         .instrumen-section {
-            margin-top: 40px;
-            padding-top: 30px;
+            margin-top: 24px;
+            padding-top: 18px;
             border-top: 2px dashed var(--border-color);
             width: 100%;
         }
@@ -343,85 +428,100 @@
         /* Kuesioner Section */
         .question-box {
             background-color: #ffffff;
-            padding: 20px;
+            padding: 14px 16px;
             border-radius: 8px;
             border: 1px solid #e5e7eb;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            margin-bottom: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
 
         .question-title {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--primary-blue);
-            margin-bottom: 10px;
-            font-size: 1.05rem;
+            margin-bottom: 4px;
+            font-size: 0.94rem;
+        }
+
+        .question-box > p {
+            font-size: 0.82rem;
+            margin: 0 0 8px 0;
+            color: #475569;
         }
 
         .rubric-box {
             background-color: #f8fafc;
-            padding: 15px;
+            padding: 10px 12px;
             border-radius: 6px;
-            margin-bottom: 15px;
-            font-size: 0.85rem;
+            margin-bottom: 10px;
+            font-size: 0.77rem;
             color: #475569;
             border-left: 3px solid #cbd5e1;
+            line-height: 1.4;
         }
 
         .rubric-box ul {
             margin: 0;
-            padding-left: 20px;
+            padding-left: 10px;
             list-style-type: none;
         }
 
-        .rubric-box li { margin-bottom: 6px; }
+        .rubric-box li {
+            margin-bottom: 3px;
+        }
+
+        .rubric-box li:last-child {
+            margin-bottom: 0;
+        }
 
         .rubric-box strong {
             color: var(--text-dark);
             display: inline-block;
-            width: 100px;
+            width: 90px;
         }
 
         .radio-group {
             display: flex;
-            gap: 15px;
-            justify-content: space-between;
+            gap: 10px;
+            justify-content: space-around;
             background-color: #eff6ff;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 8px 12px;
+            border-radius: 7px;
         }
 
         .radio-option {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
+            gap: 3px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 0.82rem;
             color: var(--primary-blue);
         }
 
         .radio-option input[type="radio"] {
-            transform: scale(1.3);
+            transform: scale(1.15);
             cursor: pointer;
+            margin: 0;
         }
 
         /* Tombol Submit */
         .btn-submit {
             background-color: var(--primary-blue);
             color: white;
-            padding: 15px 30px;
+            padding: 11px 24px;
             border: none;
             border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 0.95rem;
+            font-weight: 700;
             width: 100%;
             cursor: pointer;
-            margin-top: 30px;
+            margin-top: 20px;
             transition: background-color 0.3s;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .btn-submit:hover {
@@ -431,8 +531,8 @@
         @media (max-width: 600px) {
             .form-grid { grid-template-columns: 1fr; }
             .header-container { flex-direction: column; text-align: center; }
-            .rubric-box strong { display: block; width: 100%; margin-bottom: 3px; }
-            .radio-group { flex-wrap: wrap; justify-content: center; gap: 20px; }
+            .rubric-box strong { display: block; width: 100%; margin-bottom: 2px; }
+            .radio-group { flex-wrap: wrap; justify-content: center; gap: 14px; }
         }
     </style>
 </head>
