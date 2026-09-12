@@ -1222,34 +1222,44 @@
             tbody.innerHTML = html;
         }
 
-        // 3. Ubah Format Contoh Nama saat Jenis Periode Berubah
+        // 3. Ubah Format Contoh Placeholder saat Jenis Periode Berubah
         function handleJenisPeriodeChange() {
             const jenis = document.getElementById('inputJenisPeriode').value;
             const inputNama = document.getElementById('inputNamaPeriode');
             const nowYear = new Date().getFullYear();
 
             if (jenis === 'Tahunan') {
-                inputNama.value = 'Tahun ' + (nowYear + 1);
+                inputNama.placeholder = 'Contoh: Tahun ' + (nowYear + 1);
             } else if (jenis === 'Bulanan') {
-                inputNama.value = 'Januari ' + nowYear;
+                inputNama.placeholder = 'Contoh: Januari ' + nowYear;
             } else if (jenis === 'Triwulan') {
-                inputNama.value = 'Triwulan I ' + nowYear;
+                inputNama.placeholder = 'Contoh: Triwulan I ' + nowYear;
             } else if (jenis === 'Semester') {
-                inputNama.value = 'Semester I ' + nowYear;
+                inputNama.placeholder = 'Contoh: Semester I ' + nowYear;
             } else {
-                inputNama.value = '';
+                inputNama.placeholder = 'Masukkan nama periode...';
             }
         }
 
         // 4. Tambah Periode Baru
         function submitAddPeriod(e) {
             e.preventDefault();
-            const nama = document.getElementById('inputNamaPeriode').value.trim();
+            const inputEl = document.getElementById('inputNamaPeriode');
+            const nama = inputEl.value.trim();
             const jenis = document.getElementById('inputJenisPeriode').value;
             const setActive = document.getElementById('checkAutoActive').checked;
             const btn = document.getElementById('btnSubmitPeriod');
 
-            if (!nama) return;
+            if (!nama) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Nama Periode Wajib Diisi',
+                    text: 'Silakan ketik nama periode yang ingin ditambahkan (contoh: Tahun 2026 atau Januari 2026).',
+                    confirmButtonColor: '#1e40af'
+                });
+                inputEl.focus();
+                return;
+            }
 
             const originalBtn = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
@@ -1277,7 +1287,7 @@
                         text: res.message,
                         confirmButtonColor: '#1e40af'
                     });
-                    document.getElementById('inputNamaPeriode').value = '';
+                    inputEl.value = '';
                     if (res.config) {
                         currentConfig = res.config;
                         renderPeriodData();
