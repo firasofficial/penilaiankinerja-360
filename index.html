@@ -128,79 +128,109 @@
             --text-dark: #0f172a;
             --text-muted: #64748b;
             --accent-peach: #ffdcc8;
+            --accent-amber: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
             font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--light-bg);
-            /* --- BACKGROUND MENARIK --- */
             background-image: 
-                radial-gradient(circle at 90% 30%, rgba(37, 99, 235, 0.08) 0%, transparent 45%),
-                radial-gradient(circle at 10% 70%, rgba(15, 62, 139, 0.03) 0%, transparent 40%),
-                radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
-            background-size: 100% 100%, 100% 100%, 24px 24px;
+                radial-gradient(circle at 90% 20%, rgba(37, 99, 235, 0.07) 0%, transparent 45%),
+                radial-gradient(circle at 10% 80%, rgba(15, 62, 139, 0.04) 0%, transparent 40%),
+                radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
+            background-size: 100% 100%, 100% 100%, 20px 20px;
             background-attachment: fixed;
             margin: 0;
             color: var(--text-dark);
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
-        /* --- Tampilan Header --- */
+        @media (min-width: 992px) and (min-height: 620px) {
+            body {
+                height: 100vh;
+                overflow: hidden;
+            }
+        }
+
+        /* --- Tampilan Header yang Dipercantik --- */
         header {
-            background: #ffffff;
-            padding: 18px 24px;
-            border-top: 5px solid var(--accent-peach);
-            border-bottom: 2px solid var(--primary-blue);
-            box-shadow: 0 4px 20px rgba(15, 62, 139, 0.02);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 246, 255, 0.92) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 10px 28px;
+            border-top: 4px solid #f59e0b;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.15);
+            box-shadow: 0 4px 20px -2px rgba(15, 62, 139, 0.06);
             position: relative;
-            z-index: 10;
+            z-index: 50;
+            flex-shrink: 0;
         }
 
         .header-container {
-            max-width: 1200px;
+            max-width: 1280px;
             margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 20px;
+            gap: 16px;
         }
 
         .header-left {
             display: flex;
             align-items: center;
-            gap: 18px;
+            gap: 14px;
         }
 
         .header-logo img {
-            width: 68px;
+            width: 48px;
             height: auto;
             display: block;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.08));
         }
 
         .header-title {
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .header-title h1 {
             margin: 0;
-            font-size: 1.85rem;
+            font-size: 1.35rem;
             font-weight: 800;
             color: var(--primary-blue);
-            letter-spacing: -0.2px;
+            letter-spacing: -0.3px;
+            line-height: 1.15;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-subtitle {
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: #475569;
+            margin-top: 2px;
+            letter-spacing: 0.1px;
             line-height: 1.2;
         }
 
         .header-right {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
         }
 
         .logo-akhlak {
-            height: 42px;
+            height: 36px;
             width: auto;
             display: block;
             object-fit: contain;
@@ -208,7 +238,7 @@
 
         .header-separator {
             width: 1px;
-            height: 38px;
+            height: 32px;
             background-color: #cbd5e1;
             display: block;
         }
@@ -217,27 +247,27 @@
         .user-badge {
             display: flex;
             align-items: center;
-            gap: 12px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 6px 16px 6px 8px;
+            gap: 10px;
+            background: #ffffff;
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            padding: 4px 12px 4px 6px;
             border-radius: 100px;
-            box-shadow: 0 2px 8px rgba(15, 62, 139, 0.03);
+            box-shadow: 0 2px 10px rgba(15, 62, 139, 0.05);
             position: relative;
             z-index: 100;
-            pointer-events: auto;
         }
 
         .user-avatar-circle {
-            width: 36px;
-            height: 36px;
-            background-color: var(--primary-blue);
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--secondary-blue), var(--primary-blue));
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #ffffff;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
         }
 
         .user-details {
@@ -247,10 +277,10 @@
         }
 
         .user-name {
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             font-weight: 800;
             color: var(--primary-blue);
-            max-width: 180px;
+            max-width: 160px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -260,55 +290,58 @@
         }
 
         .user-nip {
-            font-size: 0.72rem;
+            font-size: 0.68rem;
             color: var(--text-muted);
-            margin-top: 2px;
-            font-weight: 500;
+            margin-top: 1px;
+            font-weight: 600;
         }
 
         .btn-logout {
             background: none;
             border: none;
             color: #ef4444;
-            font-size: 1rem;
+            font-size: 0.95rem;
             cursor: pointer !important;
-            padding: 6px;
+            padding: 5px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
-            margin-left: 6px;
-            position: relative;
-            z-index: 105;
-            pointer-events: auto;
+            margin-left: 4px;
         }
 
         .btn-logout:hover {
             background: #fee2e2;
             color: #b91c1c;
-            transform: scale(1.05);
+            transform: scale(1.08);
         }
 
-        /* --- Tampilan Hero / Info Section --- */
+        /* --- Tampilan Main Section / Container (Fit 100vh) --- */
         .container {
-            max-width: 1140px;
-            margin: 50px auto;
-            padding: 0 24px;
+            max-width: 1180px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 12px 24px;
             position: relative;
             z-index: 2;
-            flex-grow: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 12px;
         }
 
+        /* --- Info Card Compact --- */
         .info-card {
             background: #ffffff;
-            padding: 35px 40px;
-            border-radius: 16px;
-            margin-bottom: 50px;
-            box-shadow: 0 10px 30px rgba(15, 62, 139, 0.03);
+            padding: 14px 22px;
+            border-radius: 12px;
+            margin-bottom: 0;
+            box-shadow: 0 4px 16px rgba(15, 62, 139, 0.03);
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(226, 232, 240, 0.6);
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
 
         .info-card::before {
@@ -317,23 +350,34 @@
             top: 0;
             left: 0;
             bottom: 0;
-            width: 6px;
-            background-color: var(--secondary-blue);
+            width: 5px;
+            background: linear-gradient(to bottom, var(--secondary-blue), var(--primary-blue));
+        }
+
+        .info-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .info-card h2 {
-            margin-top: 0;
+            margin: 0;
             color: var(--primary-blue);
-            font-size: 1.45rem;
-            font-weight: 700;
-            margin-bottom: 16px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .info-card p {
-            line-height: 1.7;
+            line-height: 1.5;
             color: #475569;
-            font-size: 1.05rem;
-            margin-bottom: 20px;
+            font-size: 0.86rem;
+            margin: 0;
         }
 
         .info-card em {
@@ -349,86 +393,172 @@
         .info-badge {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            color: var(--primary-blue);
+            gap: 6px;
+            color: var(--secondary-blue);
+            background: rgba(37, 99, 235, 0.08);
+            padding: 3px 10px;
+            border-radius: 100px;
             font-weight: 700;
+            font-size: 0.74rem;
+        }
+
+        /* --- Detected Jabatan Banner Compact --- */
+        .detected-jabatan-banner {
+            background: #ffffff;
+            border-left: 5px solid var(--secondary-blue);
+            border-right: 1px solid rgba(226, 232, 240, 0.8);
+            border-top: 1px solid rgba(226, 232, 240, 0.8);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            padding: 10px 18px;
+            border-radius: 12px;
+            margin: 0;
+            box-shadow: 0 4px 16px rgba(15, 62, 139, 0.03);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .detected-icon {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--secondary-blue);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .detected-details {
+            flex-grow: 1;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .detected-text-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detected-details .label {
+            margin: 0;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detected-details .value {
+            margin: 1px 0;
             font-size: 0.95rem;
-            margin-top: 5px;
+            color: var(--primary-blue);
+            font-weight: 800;
         }
 
-        .info-badge i {
-            font-size: 1rem;
+        .detected-details .desc {
+            margin: 0;
+            font-size: 0.78rem;
+            color: #475569;
+            font-weight: 500;
         }
 
-        /* --- Tampilan Grid Pilihan Peran --- */
+        .detected-details .badge {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 100px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* --- Section Title --- */
         .roles-section-title {
             text-align: center;
-            margin: 45px 0 35px;
+            margin: 2px 0 0;
             color: var(--text-dark);
             font-weight: 800;
-            font-size: 1.7rem;
-            letter-spacing: -0.5px;
+            font-size: 1.15rem;
+            letter-spacing: -0.3px;
         }
 
+        /* --- Role Grid Compact --- */
         .role-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
+            gap: 16px;
+        }
+
+        .role-grid.two-roles {
+            grid-template-columns: repeat(2, 1fr);
+            max-width: 720px;
+            margin: 0 auto;
+            width: 100%;
         }
 
         .role-card {
             background: #ffffff;
-            padding: 40px 30px;
-            border-radius: 20px;
+            padding: 20px 18px;
+            border-radius: 14px;
             text-align: center;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: pointer;
-            border: 1px solid rgba(226, 232, 240, 0.7);
+            border: 1px solid rgba(226, 232, 240, 0.8);
             text-decoration: none;
             color: inherit;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 4px 20px rgba(15, 62, 139, 0.02);
+            box-shadow: 0 4px 16px rgba(15, 62, 139, 0.03);
             position: relative;
         }
 
         .role-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 35px rgba(15, 62, 139, 0.06);
-            border-color: rgba(37, 99, 235, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(15, 62, 139, 0.08);
+            border-color: rgba(37, 99, 235, 0.4);
         }
 
         .role-card i {
-            font-size: 3.2rem;
+            font-size: 2.2rem;
             color: var(--secondary-blue);
-            margin-bottom: 22px;
+            margin-bottom: 10px;
             transition: all 0.3s ease;
         }
 
         .role-card:hover i {
             color: var(--primary-blue);
-            transform: scale(1.08);
+            transform: scale(1.1);
         }
 
         .role-card h3 {
-            margin: 0 0 12px;
+            margin: 0 0 6px;
             color: var(--primary-blue);
-            font-size: 1.35rem;
-            font-weight: 700;
+            font-size: 1.1rem;
+            font-weight: 800;
         }
 
         .role-card p {
-            font-size: 0.95rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
-            line-height: 1.6;
+            line-height: 1.45;
             margin: 0;
         }
 
-        /* --- Tampilan Footer --- */
+        /* --- Tampilan Footer Compact --- */
         footer {
-            margin-top: auto;
-            padding: 30px 20px;
+            flex-shrink: 0;
+            padding: 8px 20px;
             background: transparent;
             text-align: center;
             position: relative;
@@ -439,50 +569,72 @@
             max-width: 1200px;
             margin: 0 auto;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .footer-copyright {
             margin: 0;
-            font-size: 0.9rem;
+            font-size: 0.74rem;
             color: var(--text-muted);
             font-weight: 600;
-            letter-spacing: 0.5px;
+        }
+
+        .footer-separator-dot {
+            width: 4px;
+            height: 4px;
+            background: #cbd5e1;
+            border-radius: 50%;
+            display: inline-block;
         }
 
         .footer-institution {
             margin: 0;
-            font-size: 0.95rem;
+            font-size: 0.76rem;
             color: var(--primary-blue);
             font-weight: 800;
         }
 
         .footer-subtext {
             margin: 0;
-            font-size: 0.82rem;
+            font-size: 0.74rem;
             color: #64748b;
             font-weight: 500;
-            letter-spacing: 0.2px;
         }
 
-        /* --- Responsiveness untuk Layar Mobile --- */
-        @media (max-width: 768px) {
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Responsiveness untuk Layar Kecil & Mobile --- */
+        @media (max-width: 900px) {
+            body {
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+            }
+            .container {
+                padding: 16px;
+                gap: 14px;
+            }
             .header-container {
                 flex-direction: column;
                 text-align: center;
-                gap: 15px;
+                gap: 12px;
             }
             .header-left {
                 flex-direction: column; 
-                gap: 10px;
+                gap: 8px;
             }
             .header-title h1 {
-                font-size: 1.3rem;
+                font-size: 1.25rem;
+                justify-content: center;
             }
             .logo-akhlak {
-                height: 40px; 
+                height: 32px; 
                 margin: 0 auto; 
             }
             .header-separator {
@@ -490,114 +642,32 @@
             }
             .header-right {
                 flex-direction: column;
-                gap: 12px;
+                gap: 10px;
                 width: 100%;
             }
             .user-badge {
                 width: 100%;
                 justify-content: center;
-                box-sizing: border-box;
             }
-            .role-grid {
+            .role-grid, .role-grid.two-roles {
                 grid-template-columns: 1fr;
-                gap: 20px;
-            }
-        }
-
-        /* --- Detected Jabatan Banner --- */
-        .detected-jabatan-banner {
-            background: #ffffff;
-            border-left: 5px solid var(--secondary-blue);
-            border-right: 1px solid rgba(226, 232, 240, 0.8);
-            border-top: 1px solid rgba(226, 232, 240, 0.8);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-            padding: 20px 24px;
-            border-radius: 16px;
-            margin-bottom: 40px;
-            box-shadow: 0 10px 25px rgba(15, 62, 139, 0.03);
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            animation: fadeIn 0.6s ease;
-        }
-
-        .detected-icon {
-            background: rgba(37, 99, 235, 0.1);
-            color: var(--secondary-blue);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            flex-shrink: 0;
-        }
-
-        .detected-details {
-            flex-grow: 1;
-            text-align: left;
-        }
-
-        .detected-details .label {
-            margin: 0;
-            font-size: 0.82rem;
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .detected-details .value {
-            margin: 4px 0;
-            font-size: 1.15rem;
-            color: var(--primary-blue);
-            font-weight: 800;
-        }
-
-        .detected-details .desc {
-            margin: 0;
-            font-size: 0.88rem;
-            color: #475569;
-            font-weight: 500;
-        }
-
-        .detected-details .badge {
-            display: inline-block;
-            background: rgba(16, 185, 129, 0.1);
-            color: #059669;
-            font-size: 0.78rem;
-            font-weight: 700;
-            padding: 4px 10px;
-            border-radius: 100px;
-            margin-top: 8px;
-            text-transform: uppercase;
-        }
-
-        .role-grid.two-roles {
-            grid-template-columns: repeat(2, 1fr);
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 768px) {
-            .role-grid.two-roles {
-                grid-template-columns: 1fr;
+                gap: 14px;
                 max-width: 100%;
             }
             .detected-jabatan-banner {
                 flex-direction: column;
                 text-align: center;
                 align-items: center;
-                padding: 20px;
+                padding: 14px;
             }
             .detected-details {
                 text-align: center;
+                flex-direction: column;
+                align-items: center;
+            }
+            .info-card-header {
+                flex-direction: column;
+                align-items: flex-start;
             }
         }
     </style>
@@ -612,6 +682,7 @@
                 </div>
                 <div class="header-title">
                     <h1>SIPEKA 360°</h1>
+                    <span class="header-subtitle">Sistem Informasi Penilaian Perilaku Kerja Aparatur 360 Derajat</span>
                 </div>
             </div>
 
@@ -634,11 +705,13 @@
 
     <div class="container">
         <div class="info-card">
-            <h2>Tentang SIPEKA 360°</h2>
-            <p><strong>SIPEKA 360°</strong> atau Penilaian Perilaku Kerja Aparatur 360 Derajat merupakan metode penilaian berupa umpan balik <em>(feedback)</em> atas perilaku kinerja Pegawai ASN yang berasal dari <strong>Atasan, Rekan Sejawat, dan Bawahan</strong> untuk memberikan pandangan yang komprehensif dan seimbang mengenai kekuatan dan kelemahan individu pegawai.</p>
-            <div class="info-badge">
-                <i class="fas fa-info-circle"></i> Sesuai dengan KEPKA BKN 411/2025
+            <div class="info-card-header">
+                <h2><i class="fas fa-circle-info" style="color: var(--secondary-blue);"></i> Tentang SIPEKA 360°</h2>
+                <div class="info-badge">
+                    <i class="fas fa-check-circle"></i> Sesuai KEPKA BKN 411/2025
+                </div>
             </div>
+            <p><strong>SIPEKA 360°</strong> <em>(Penilaian Perilaku Kerja Aparatur 360 Derajat)</em> merupakan metode evaluasi berupa umpan balik <em>(feedback)</em> atas perilaku kinerja Pegawai ASN yang berasal dari <strong>Atasan, Rekan Sejawat, dan Bawahan</strong> guna memberikan pandangan yang komprehensif dan objektif mengenai kompetensi serta perilaku kerja pegawai.</p>
         </div>
 
         <h2 class="roles-section-title">Pilih Peran Anda Sebagai Penilai</h2>
@@ -649,9 +722,11 @@
                 <i class="fas fa-briefcase"></i>
             </div>
             <div class="detected-details">
-                <p class="label">Jabatan Terdeteksi</p>
-                <h4 class="value" id="detectedJabatanText">-</h4>
-                <p class="desc" id="detectedConditionText"></p>
+                <div class="detected-text-group">
+                    <p class="label">Jabatan Terdeteksi</p>
+                    <h4 class="value" id="detectedJabatanText">-</h4>
+                    <p class="desc" id="detectedConditionText"></p>
+                </div>
                 <div class="badge" id="detectedConditionBadge">-</div>
             </div>
         </div>
@@ -672,16 +747,18 @@
             <a href="form_bawahan.html" class="role-card" id="roleBawahan">
                 <i class="fas fa-user-graduate"></i>
                 <h3>Bawahan</h3>
-                <p>Form ini dipilih oleh Pegawai ASN yang akan melakukan penilaian terhadap Atasan Langsungnya.</p>
+                <p>Form ini dipilih oleh Atasan yang akan melakukan penilaian terhadap Bawahannya.</p>
             </a>
         </div>
     </div>
 
     <footer>
         <div class="footer-content">
-            <p class="footer-copyright">&copy; 2026</p>
-            <p class="footer-institution">Pemerintah Kabupaten Aceh Timur</p>
-            <p class="footer-subtext">Sistem Informasi Perilaku Kerja Aparatur 360 Derajat</p>
+            <span class="footer-copyright">&copy; 2026</span>
+            <span class="footer-separator-dot"></span>
+            <span class="footer-institution">Pemerintah Kabupaten Aceh Timur</span>
+            <span class="footer-separator-dot"></span>
+            <span class="footer-subtext">Sistem Informasi Penilaian Perilaku Kerja Aparatur 360 Derajat</span>
         </div>
     </footer>
 
