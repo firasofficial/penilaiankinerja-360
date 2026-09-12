@@ -1018,52 +1018,26 @@
 
         <!-- Section 2: Unduh Data SIPEKA 360 -->
         <div class="admin-section" id="sectionUnduhData">
-            <div class="panel-card" style="margin-bottom: 30px;">
-                <div class="panel-header">
-                    <h3><i class="fas fa-download"></i> Unduh Data SIPEKA 360° (Penilaian Atasan, Bawahan & Rekan Sejawat)</h3>
-                    <button class="btn-action-hero btn-hero-green" style="padding: 6px 14px; font-size: 0.8rem;" onclick="downloadAllSipekaData()">
-                        <i class="fas fa-file-excel"></i> Unduh Semua Sheet (.xlsx)
-                    </button>
+            <div class="panel-card" style="margin-bottom: 30px; max-width: 800px; margin-left: auto; margin-right: auto;">
+                <div class="panel-header" style="justify-content: center; text-align: center;">
+                    <h3 style="justify-content: center;"><i class="fas fa-file-excel" style="color: #10b981;"></i> Unduh Data Penilaian SIPEKA 360°</h3>
                 </div>
-                <div class="panel-body">
-                    <p style="font-size: 0.84rem; color: #475569; margin-top: 0; margin-bottom: 16px;">
-                        Download database penilaian pegawai yang telah terekam di Google Sheets. Anda dapat mengunduh seluruh lembar kerja (Workbook) sekaligus dalam format <strong>Excel (.xlsx)</strong> atau per tab.
+                <div class="panel-body" style="text-align: center; padding: 36px 28px;">
+                    <div style="width: 72px; height: 72px; background: #ecfdf5; border-radius: 50%; color: #059669; font-size: 2rem; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.15);">
+                        <i class="fas fa-file-excel"></i>
+                    </div>
+
+                    <h4 style="margin: 0 0 10px; font-size: 1.25rem; font-weight: 800; color: var(--primary-blue);">
+                        Rekapan 3 Sheet Penilaian ASN
+                    </h4>
+
+                    <p style="font-size: 0.9rem; color: #475569; max-width: 540px; margin: 0 auto 24px; line-height: 1.6;">
+                        Download file Excel (<strong>.xlsx</strong>) yang secara otomatis merangkum data penilaian dari <strong>3 sheet utama</strong>: <em>Penilaian Atasan</em>, <em>Penilaian Rekan Sejawat</em>, dan <em>Penilaian Bawahan</em>.
                     </p>
 
-                    <div class="download-grid">
-                        <div class="download-card">
-                            <div>
-                                <div class="icon-circle"><i class="fas fa-user-tie"></i></div>
-                                <h4>Penilaian Atasan</h4>
-                                <p>Data responden dan penilaian kinerja perilaku oleh Atasan Langsung.</p>
-                            </div>
-                            <button class="btn-download-sheet" onclick="downloadSpecificSheet('Atasan')">
-                                <i class="fas fa-file-csv"></i> Unduh Tab Atasan
-                            </button>
-                        </div>
-
-                        <div class="download-card">
-                            <div>
-                                <div class="icon-circle"><i class="fas fa-user-group"></i></div>
-                                <h4>Penilaian Rekan Sejawat</h4>
-                                <p>Data penilaian umpan balik rekan kerja sejawat ASN.</p>
-                            </div>
-                            <button class="btn-download-sheet" onclick="downloadSpecificSheet('Rekan')">
-                                <i class="fas fa-file-csv"></i> Unduh Tab Rekan
-                            </button>
-                        </div>
-
-                        <div class="download-card">
-                            <div>
-                                <div class="icon-circle"><i class="fas fa-user"></i></div>
-                                <h4>Penilaian Bawahan</h4>
-                                <p>Data penilaian bawahan terhadap pimpinan/pejabat struktural.</p>
-                            </div>
-                            <button class="btn-download-sheet" onclick="downloadSpecificSheet('Bawahan')">
-                                <i class="fas fa-file-csv"></i> Unduh Tab Bawahan
-                            </button>
-                        </div>
-                    </div>
+                    <button class="btn-primary" style="max-width: 360px; margin: 0 auto; background: #10b981; font-size: 1rem; padding: 14px 28px; box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);" onclick="downloadAllSipekaData()">
+                        <i class="fas fa-cloud-arrow-down"></i> Unduh Data SIPEKA (.xlsx)
+                    </button>
                 </div>
             </div>
         </div>
@@ -1567,30 +1541,37 @@
                 const wb = XLSX.utils.book_new();
                 let addedSheetsCount = 0;
 
+                // Urutan 3 sheet utama: Atasan, Rekan Sejawat, Bawahan
+                const allowedCategories = ['atasan', 'rekan', 'bawahan'];
+
                 for (let sheetName in sheets) {
-                    const rows = sheets[sheetName];
-                    if (rows && rows.length > 0) {
-                        const ws = XLSX.utils.aoa_to_sheet(rows);
-                        // Bersihkan nama sheet jika terlalu panjang
-                        let cleanName = sheetName.replace(/[\\/?*[\]]/g, '').substring(0, 31);
-                        XLSX.utils.book_append_sheet(wb, ws, cleanName || 'Sheet');
-                        addedSheetsCount++;
+                    const lowerName = sheetName.toLowerCase();
+                    const isAllowed = allowedCategories.some(cat => lowerName.includes(cat));
+
+                    if (isAllowed) {
+                        const rows = sheets[sheetName];
+                        if (rows && rows.length > 0) {
+                            const ws = XLSX.utils.aoa_to_sheet(rows);
+                            let cleanName = sheetName.replace(/[\\/?*[\]]/g, '').substring(0, 31);
+                            XLSX.utils.book_append_sheet(wb, ws, cleanName || 'Sheet');
+                            addedSheetsCount++;
+                        }
                     }
                 }
 
                 if (addedSheetsCount === 0) {
-                    // Fallback sheet
-                    const ws = XLSX.utils.aoa_to_sheet([["Info"], ["Belum ada data penilaian"]]);
-                    XLSX.utils.book_append_sheet(wb, ws, "SIPEKA_360");
+                    // Fallback jika belum ada respon
+                    const ws = XLSX.utils.aoa_to_sheet([["Info"], ["Belum ada data penilaian Atasan, Rekan Sejawat, atau Bawahan"]]);
+                    XLSX.utils.book_append_sheet(wb, ws, "Penilaian_360");
                 }
 
-                const filename = `SIPEKA_360_Semua_Penilaian_Aceh_Timur_${new Date().toISOString().slice(0,10)}.xlsx`;
+                const filename = `SIPEKA_360_Penilaian_Atasan_Rekan_Bawahan_${new Date().toISOString().slice(0,10)}.xlsx`;
                 XLSX.writeFile(wb, filename);
 
                 Swal.fire({
                     icon: 'success',
                     title: 'Unduhan Berhasil!',
-                    text: `File workbook Excel "${filename}" telah berhasil diunduh.`,
+                    text: `File Excel "${filename}" berisi 3 sheet penilaian telah berhasil diunduh.`,
                     confirmButtonColor: '#1e40af'
                 });
 

@@ -513,22 +513,41 @@ function handleDeletePeriod(params) {
 }
 
 /**
- * Mengambil Semua Data Penilaian dari Sheet (Atasan, Bawahan, Rekan) untuk Didownload oleh Admin
+ * Mengambil Tiga Sheet Data Penilaian (Penilaian Atasan, Bawahan, Rekan) untuk Didownload oleh Admin
  */
 function handleGetAllPenilaianData() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheets = ss.getSheets();
   const result = {};
 
+  // Hanya ambil 3 sheet penilaian: Atasan, Bawahan, dan Rekan
   sheets.forEach(sheet => {
     const name = sheet.getName();
-    // Exclude technical sheets if desired, but include all assessment sheets
-    const dataRange = sheet.getDataRange();
-    const values = dataRange.getValues();
-    if (values && values.length > 0) {
-      result[name] = values;
-    } else {
-      result[name] = [];
+    const lowerName = name.toLowerCase();
+
+    // Sheet yang diexclude (bukan data penilaian)
+    const isSystemSheet = (
+      lowerName === "data_pegawai" ||
+      lowerName === "users" ||
+      lowerName === "pengaturan" ||
+      lowerName === "config" ||
+      lowerName === "periode_list" ||
+      lowerName === "log_otp"
+    );
+
+    const isAssessmentSheet = (
+      lowerName.includes("atasan") ||
+      lowerName.includes("bawahan") ||
+      lowerName.includes("rekan") ||
+      lowerName.includes("sejawat")
+    );
+
+    if (!isSystemSheet && isAssessmentSheet) {
+      const dataRange = sheet.getDataRange();
+      const values = dataRange.getValues();
+      if (values && values.length > 0) {
+        result[name] = values;
+      }
     }
   });
 
