@@ -524,14 +524,16 @@
             </div>
 
             <div class="form-grid">
-                <div class="form-group">
+                <div class="form-group autocomplete-wrapper">
                     <label for="nip_bawahan">NIP Rekan Sejawat</label>
-                    <input type="text" id="nip_bawahan" name="nip_bawahan" maxlength="18" placeholder="18 Digit NIP Tanpa Spasi" required oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <input type="text" id="nip_bawahan" name="nip_bawahan" maxlength="18" placeholder="18 Digit NIP Tanpa Spasi" required oninput="this.value = this.value.replace(/[^0-9]/g, '')" autocomplete="off">
+                    <div id="nipSuggestions" class="autocomplete-dropdown" style="display: none;"></div>
                 </div>
 
-                <div class="form-group">
-                    <label for="nama_bawahan">Nama Rekan Sejawat</label>
-                    <input type="text" id="nama_bawahan" name="nama_bawahan" placeholder="Otomatis terisi" required readonly style="background-color: #f9fafb;">
+                <div class="form-group autocomplete-wrapper">
+                    <label for="nama_bawahan">Nama Rekan Sejawat <span style="font-size: 0.78rem; color: #2563eb; font-weight: 600;">(Bisa cari & ketik nama di sini)</span></label>
+                    <input type="text" id="nama_bawahan" name="nama_bawahan" placeholder="Ketik nama untuk mencari otomatis..." required autocomplete="off">
+                    <div id="namaSuggestions" class="autocomplete-dropdown" style="display: none;"></div>
                 </div>
                                                                     
                 <div class="form-group">
@@ -731,6 +733,92 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script src="pegawai.js"></script>
+    <style>
+        /* --- Live Search Autocomplete Dropdown Styles --- */
+        .autocomplete-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            max-height: 260px;
+            overflow-y: auto;
+            z-index: 1000;
+            list-style: none;
+            margin: 0;
+            padding: 4px 0;
+        }
+
+        .suggestion-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.15s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            text-align: left;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover, .suggestion-item.active {
+            background-color: #eff6ff;
+        }
+
+        .suggestion-name {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 0.92rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .suggestion-badge-role {
+            font-size: 0.7rem;
+            background: #e0edff;
+            color: #1e40af;
+            padding: 2px 8px;
+            border-radius: 100px;
+            font-weight: 600;
+        }
+
+        .suggestion-details {
+            font-size: 0.78rem;
+            color: #64748b;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .suggestion-nip {
+            color: #2563eb;
+            font-weight: 700;
+        }
+
+        .suggestion-jabatan {
+            color: #475569;
+        }
+
+        .suggestion-empty {
+            padding: 14px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+    </style>
     <script>
         // Inisialisasi Select2 pada dropdown Satuan Kerja
         $(document).ready(function() {
@@ -780,36 +868,124 @@
         const pangkatInput = document.getElementById('pangkat');
         const jabatanInput = document.getElementById('jabatan');
         const jenisPegawaiInput = document.getElementById('jenis_pegawai');
+        const nipSuggestions = document.getElementById('nipSuggestions');
+        const namaSuggestions = document.getElementById('namaSuggestions');
 
-        // 4. Logika Pencarian Otomatis saat NIP diketik
-        nipInput.addEventListener('input', function() {
-            const nipValue = this.value;
+        // Fungsi Memilih Pegawai dari Hasil Pencarian
+        function selectPegawai(p) {
+            if (!p) return;
+            nipInput.value = p.nip || '';
+            namaInput.value = p.nama || '';
+            pangkatInput.value = p.golru || p.pangkat || '';
+            jabatanInput.value = p.jabatan || '';
             
-            // Mencari di dalam array dataPegawai yang didapat dari JSON
-            const pegawaiDitemukan = dataPegawai.find(p => p.nip === nipValue);
-            
-            if (pegawaiDitemukan) {
-                // Jika ketemu, isi nama, pangkat, dan jabatan otomatis
-                namaInput.value = pegawaiDitemukan.nama;
-                pangkatInput.value = pegawaiDitemukan.golru; 
-                jabatanInput.value = pegawaiDitemukan.jabatan;
-                
-                // Set otomatis select PNS/PPPK
-                if(pegawaiDitemukan.jenis_pegawai) {
-                    let jenis = pegawaiDitemukan.jenis_pegawai.toUpperCase();
-                    if(jenis === 'PNS' || jenis === 'PPPK') {
-                        jenisPegawaiInput.value = jenis;
-                    }
+            if (p.jenis_pegawai) {
+                let jenis = p.jenis_pegawai.toUpperCase();
+                if (jenis === 'PNS' || jenis === 'PPPK') {
+                    jenisPegawaiInput.value = jenis;
                 }
+            }
 
-                nipInput.style.borderColor = "#3b82f6"; // Diubah ke warna sekunder biru
+            // Otomatis pilih satuan kerja jika cocok
+            if (p.satuan_kerja || p.unit_kerja) {
+                const targetSk = (p.satuan_kerja || p.unit_kerja).trim().toLowerCase();
+                $('#satuanKerja option').each(function() {
+                    if ($(this).val() && $(this).val().trim().toLowerCase() === targetSk) {
+                        $('#satuanKerja').val($(this).val()).trigger('change');
+                    }
+                });
+            }
+
+            nipInput.style.borderColor = "#10b981";
+            namaInput.style.borderColor = "#10b981";
+            hideSuggestions();
+        }
+
+        function hideSuggestions() {
+            if (namaSuggestions) namaSuggestions.style.display = 'none';
+            if (nipSuggestions) nipSuggestions.style.display = 'none';
+        }
+
+        // Render List Rekomendasi / Autocomplete
+        function renderSuggestions(container, list) {
+            if (!container) return;
+            if (!list || list.length === 0) {
+                container.innerHTML = '<div class="suggestion-empty"><i class="fas fa-info-circle"></i> Tidak ditemukan pegawai yang cocok</div>';
+                container.style.display = 'block';
+                return;
+            }
+            let html = '';
+            list.slice(0, 15).forEach(p => {
+                html += `
+                    <div class="suggestion-item" data-nip="${p.nip}">
+                        <div class="suggestion-name">
+                            <span>${p.nama}</span>
+                            <span class="suggestion-badge-role">${p.jenis_pegawai || 'ASN'}</span>
+                        </div>
+                        <div class="suggestion-details">
+                            <span class="suggestion-nip"><i class="fas fa-id-card"></i> NIP. ${p.nip}</span>
+                            <span>•</span>
+                            <span class="suggestion-jabatan">${p.jabatan || '-'}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            container.style.display = 'block';
+
+            container.querySelectorAll('.suggestion-item').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const nip = this.getAttribute('data-nip');
+                    const found = dataPegawai.find(x => String(x.nip) === String(nip));
+                    if (found) selectPegawai(found);
+                });
+            });
+        }
+
+        // 4. Logika Pencarian saat Nama Diketik
+        namaInput.addEventListener('input', function() {
+            const q = this.value.trim().toLowerCase();
+            if (q.length < 2) {
+                hideSuggestions();
+                return;
+            }
+            if (!dataPegawai || dataPegawai.length === 0) return;
+            const filtered = dataPegawai.filter(p => p.nama && p.nama.toLowerCase().includes(q));
+            renderSuggestions(namaSuggestions, filtered);
+        });
+
+        // 5. Logika Pencarian saat NIP Diketik
+        nipInput.addEventListener('input', function() {
+            const q = this.value.trim();
+            
+            if (q.length === 18) {
+                const found = dataPegawai.find(p => String(p.nip) === q);
+                if (found) {
+                    selectPegawai(found);
+                    return;
+                }
+            }
+
+            if (q.length >= 3) {
+                if (!dataPegawai || dataPegawai.length === 0) return;
+                const filtered = dataPegawai.filter(p => p.nip && String(p.nip).includes(q));
+                renderSuggestions(nipSuggestions, filtered);
             } else {
-                // Jika tidak ketemu atau NIP dihapus, kosongkan form
+                hideSuggestions();
                 namaInput.value = "";
                 pangkatInput.value = "";
                 jabatanInput.value = "";
                 jenisPegawaiInput.value = "";
                 nipInput.style.borderColor = "var(--border-color)";
+                namaInput.style.borderColor = "var(--border-color)";
+            }
+        });
+
+        // Menutup dropdown saat klik di luar area
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.autocomplete-wrapper')) {
+                hideSuggestions();
             }
         });
 
