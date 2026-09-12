@@ -953,6 +953,7 @@
             }
             let html = '';
             list.slice(0, 15).forEach(p => {
+                const idLabel = String(p.nip || '').trim().length === 16 ? 'NIK' : 'NIP';
                 html += `
                     <div class="suggestion-item" data-nip="${p.nip}">
                         <div class="suggestion-name">
@@ -960,7 +961,7 @@
                             <span class="suggestion-badge-role">${p.jenis_pegawai || 'ASN'}</span>
                         </div>
                         <div class="suggestion-details">
-                            <span class="suggestion-nip"><i class="fas fa-id-card"></i> NIP. ${p.nip}</span>
+                            <span class="suggestion-nip"><i class="fas fa-id-card"></i> ${idLabel}. ${p.nip}</span>
                             <span>•</span>
                             <span class="suggestion-jabatan">${p.jabatan || '-'}</span>
                         </div>
@@ -996,7 +997,7 @@
         nipInput.addEventListener('input', function() {
             const q = this.value.trim();
             
-            if (q.length === 18) {
+            if (q.length === 16 || q.length === 18) {
                 const found = dataPegawai.find(p => String(p.nip) === q);
                 if (found) {
                     selectPegawai(found);

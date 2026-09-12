@@ -576,8 +576,9 @@
             <h5 class="section-title">B. Data Atasan Yang Dinilai</h5>
             <div class="form-grid">
                 <div class="form-group autocomplete-wrapper">
-                    <label for="nip_bawahan">NIP Atasan</label>
-                    <input type="text" id="nip_bawahan" name="nip_bawahan" maxlength="18" placeholder="18 Digit NIP Tanpa Spasi" required oninput="this.value = this.value.replace(/[^0-9]/g, '')" autocomplete="off">
+                    <label for="nip_bawahan">NIP / NIK Atasan</label>
+                    <input type="text" id="nip_bawahan" name="nip_bawahan" maxlength="18" placeholder="18 Digit NIP atau 16 Digit NIK" required oninput="this.value = this.value.replace(/[^0-9]/g, '')" autocomplete="off">
+                    <small style="color: #64748b; font-size: 0.74rem; display: block; margin-top: 3px;">*Gunakan NIP untuk Atasan ASN atau NIK (16 digit) untuk Kepala Daerah / Bupati</small>
                     <div id="nipSuggestions" class="autocomplete-dropdown" style="display: none;"></div>
                 </div>
 
@@ -905,6 +906,7 @@
             }
             let html = '';
             list.slice(0, 15).forEach(p => {
+                const idLabel = String(p.nip || '').trim().length === 16 ? 'NIK' : 'NIP';
                 html += `
                     <div class="suggestion-item" data-nip="${p.nip}">
                         <div class="suggestion-name">
@@ -912,7 +914,7 @@
                             <span class="suggestion-badge-role">${p.jenis_pegawai || 'ASN'}</span>
                         </div>
                         <div class="suggestion-details">
-                            <span class="suggestion-nip"><i class="fas fa-id-card"></i> NIP. ${p.nip}</span>
+                            <span class="suggestion-nip"><i class="fas fa-id-card"></i> ${idLabel}. ${p.nip}</span>
                             <span>•</span>
                             <span class="suggestion-jabatan">${p.jabatan || '-'}</span>
                         </div>
@@ -944,12 +946,12 @@
             renderSuggestions(namaSuggestions, filtered);
         });
 
-        // 5. Logika Pencarian saat NIP Diketik
+        // 5. Logika Pencarian saat NIP / NIK Diketik
         nipInput.addEventListener('input', function() {
             const q = this.value.trim();
             
-            // Jika sudah 18 digit pas, langsung cari dan isi
-            if (q.length === 18) {
+            // Jika sudah 16 digit (NIK Bupati) atau 18 digit (NIP ASN), langsung cari dan isi
+            if (q.length === 16 || q.length === 18) {
                 const found = dataPegawai.find(p => String(p.nip) === q);
                 if (found) {
                     selectPegawai(found);
