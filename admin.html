@@ -12,9 +12,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- SweetAlert2 & SheetJS (xlsx export) -->
+    <!-- SweetAlert2 & xlsx-js-style (Styled Excel export) -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
     <script>
         (function () {
@@ -1549,7 +1549,105 @@
             throw new Error(data.message || 'Gagal mengambil data penilaian');
         }
 
-        // 8. Unduh Semua Sheet SIPEKA 360 (Excel Workbook .xlsx)
+        // Helper: Format Worksheet dengan Styling Profesional (Header Berwarna, Garis Border, Auto Width, dsb)
+        function formatStyledWorksheet(ws, rows) {
+            if (!rows || rows.length === 0) return;
+
+            const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
+            const colWidths = [];
+
+            // Inisialisasi lebar kolom default
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                colWidths[C] = 12;
+            }
+
+            const headerFill = {
+                patternType: 'solid',
+                fgColor: { rgb: '1E3A8A' } // Deep Blue Navy
+            };
+
+            const headerFont = {
+                name: 'Calibri',
+                sz: 11,
+                bold: true,
+                color: { rgb: 'FFFFFF' } // Putih
+            };
+
+            const headerAlignment = {
+                vertical: 'center',
+                horizontal: 'center',
+                wrapText: true
+            };
+
+            const borderStyle = {
+                top: { style: 'thin', color: { rgb: 'CBD5E1' } },
+                bottom: { style: 'thin', color: { rgb: 'CBD5E1' } },
+                left: { style: 'thin', color: { rgb: 'CBD5E1' } },
+                right: { style: 'thin', color: { rgb: 'CBD5E1' } }
+            };
+
+            const headerBorderStyle = {
+                top: { style: 'medium', color: { rgb: '0F172A' } },
+                bottom: { style: 'medium', color: { rgb: '0F172A' } },
+                left: { style: 'thin', color: { rgb: '334155' } },
+                right: { style: 'thin', color: { rgb: '334155' } }
+            };
+
+            for (let R = range.s.r; R <= range.e.r; ++R) {
+                const isHeader = (R === 0);
+                const isEvenRow = (R % 2 === 0);
+
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+                    let cell = ws[cellAddress];
+                    if (!cell) {
+                        cell = { t: 's', v: '' };
+                        ws[cellAddress] = cell;
+                    }
+
+                    // Hitung estimasi lebar kolom
+                    const valStr = cell.v !== undefined && cell.v !== null ? String(cell.v) : '';
+                    if (valStr.length > colWidths[C]) {
+                        colWidths[C] = Math.min(Math.max(colWidths[C], valStr.length + 3), 45);
+                    }
+
+                    if (isHeader) {
+                        cell.s = {
+                            fill: headerFill,
+                            font: headerFont,
+                            alignment: headerAlignment,
+                            border: headerBorderStyle
+                        };
+                    } else {
+                        // Data Rows
+                        const dataFill = isEvenRow ? { patternType: 'solid', fgColor: { rgb: 'F8FAFC' } } : { patternType: 'solid', fgColor: { rgb: 'FFFFFF' } };
+                        const isScoreOrNIP = !isNaN(Number(cell.v)) && String(cell.v).length <= 6;
+                        
+                        cell.s = {
+                            fill: dataFill,
+                            font: { name: 'Calibri', sz: 10, color: { rgb: '0F172A' } },
+                            alignment: {
+                                vertical: 'center',
+                                horizontal: isScoreOrNIP ? 'center' : 'left'
+                            },
+                            border: borderStyle
+                        };
+                    }
+                }
+            }
+
+            // Terapkan column widths
+            ws['!cols'] = colWidths.map(w => ({ wch: w }));
+            
+            // Set row heights (Header 28px, Data 20px)
+            const rowHeights = [];
+            for (let R = range.s.r; R <= range.e.r; ++R) {
+                rowHeights.push({ hpx: R === 0 ? 28 : 20 });
+            }
+            ws['!rows'] = rowHeights;
+        }
+
+        // 8. Unduh Semua Sheet SIPEKA 360 (Excel Workbook .xlsx dengan Style & Border)
         async function downloadAllSipekaData() {
             const wrapper = document.getElementById('profileDropdownWrapper');
             if (wrapper) wrapper.classList.remove('active');
@@ -1577,6 +1675,7 @@
                         const rows = sheets[sheetName];
                         if (rows && rows.length > 0) {
                             const ws = XLSX.utils.aoa_to_sheet(rows);
+                            formatStyledWorksheet(ws, rows);
                             let cleanName = sheetName.replace(/[\\/?*[\]]/g, '').substring(0, 31);
                             XLSX.utils.book_append_sheet(wb, ws, cleanName || 'Sheet');
                             addedSheetsCount++;
@@ -1587,6 +1686,7 @@
                 if (addedSheetsCount === 0) {
                     // Fallback jika belum ada respon
                     const ws = XLSX.utils.aoa_to_sheet([["Info"], ["Belum ada data penilaian Atasan, Rekan Sejawat, atau Bawahan"]]);
+                    formatStyledWorksheet(ws, [["Info"], ["Belum ada data penilaian Atasan, Rekan Sejawat, atau Bawahan"]]);
                     XLSX.utils.book_append_sheet(wb, ws, "Penilaian_360");
                 }
 
@@ -1596,7 +1696,7 @@
                 Swal.fire({
                     icon: 'success',
                     title: 'Unduhan Berhasil!',
-                    text: `File Excel "${filename}" berisi 3 sheet penilaian telah berhasil diunduh.`,
+                    text: `File Excel "${filename}" berisi 3 sheet penilaian dengan format rapi dan bergaris telah berhasil diunduh.`,
                     confirmButtonColor: '#1e40af'
                 });
 
@@ -1611,7 +1711,7 @@
             }
         }
 
-        // 9. Unduh Spesifik Sheet Penilaian
+        // 9. Unduh Spesifik Sheet Penilaian (dengan Style & Border)
         async function downloadSpecificSheet(keyword) {
             Swal.fire({
                 title: 'Mengunduh Data...',
@@ -1631,7 +1731,6 @@
                 }
 
                 if (!targetSheetName) {
-                    // Coba cari sheet pertama jika tidak spesifik
                     const keys = Object.keys(sheets);
                     if (keys.length > 0) targetSheetName = keys[0];
                 }
@@ -1649,6 +1748,7 @@
                 const rows = sheets[targetSheetName];
                 const wb = XLSX.utils.book_new();
                 const ws = XLSX.utils.aoa_to_sheet(rows);
+                formatStyledWorksheet(ws, rows);
                 XLSX.utils.book_append_sheet(wb, ws, targetSheetName.substring(0, 31));
 
                 const filename = `SIPEKA_360_${keyword}_Aceh_Timur_${new Date().toISOString().slice(0,10)}.xlsx`;
@@ -1657,7 +1757,7 @@
                 Swal.fire({
                     icon: 'success',
                     title: 'Unduhan Berhasil!',
-                    text: `File "${filename}" berhasil diunduh.`,
+                    text: `File "${filename}" dengan format rapi dan bergaris telah berhasil diunduh.`,
                     confirmButtonColor: '#1e40af'
                 });
 
