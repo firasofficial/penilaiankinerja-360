@@ -833,20 +833,30 @@
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxBY9zpJEDI-tY1ImE-YVjEInRJMSrIIEtZHNs-EbiRCpbk9QmJa1Da1Ooabs7MgirP/exec';
         let dataPegawai = [];
 
-        // Terapkan periode aktif tersimpan jika ada
-        const inputPeriode = document.getElementById('periodePenilaian');
-        try {
-            const cachedPeriode = localStorage.getItem(CACHE_KEY_PERIODE);
-            if (cachedPeriode && inputPeriode) {
-                inputPeriode.value = cachedPeriode;
-            }
-        } catch(e) {}
-
         function applyPeriodeAktif(periode) {
             if (!periode) return;
             const el = document.getElementById('periodePenilaian');
             if (el) el.value = periode;
         }
+
+        // Terapkan periode aktif tersimpan dari cache segera jika ada
+        try {
+            const cachedPeriode = localStorage.getItem(CACHE_KEY_PERIODE);
+            if (cachedPeriode) {
+                applyPeriodeAktif(cachedPeriode);
+            }
+        } catch(e) {}
+
+        // Selalu sinkronkan periode aktif real-time dari backend (Google Sheets)
+        fetch(scriptURL + '?action=get_config')
+            .then(r => r.json())
+            .then(res => {
+                if (res && res.config && res.config.periode_aktif) {
+                    localStorage.setItem(CACHE_KEY_PERIODE, res.config.periode_aktif);
+                    applyPeriodeAktif(res.config.periode_aktif);
+                }
+            })
+            .catch(() => {});
 
         try {
             const cached = localStorage.getItem(CACHE_KEY_PEGAWAI);
@@ -881,17 +891,6 @@
                             .catch(err => console.warn('Gagal memuat data fallback:', err));
                     }
                 });
-        } else {
-            // Background update config periode dari spreadsheet
-            fetch(scriptURL + '?action=get_config')
-                .then(r => r.json())
-                .then(res => {
-                    if (res && res.config && res.config.periode_aktif) {
-                        localStorage.setItem(CACHE_KEY_PERIODE, res.config.periode_aktif);
-                        applyPeriodeAktif(res.config.periode_aktif);
-                    }
-                })
-                .catch(() => {});
         }
 
         // 3. Tangkap Elemen Input HTML
