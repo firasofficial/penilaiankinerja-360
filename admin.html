@@ -1069,6 +1069,15 @@
                 document.getElementById('menuAdminName').textContent = user.nama || 'Administrator';
             }
 
+            // Muat dari localStorage terlebih dahulu jika ada agar tampilan instan
+            try {
+                const localConfig = localStorage.getItem('sipeka_full_config');
+                if (localConfig) {
+                    currentConfig = JSON.parse(localConfig);
+                    renderPeriodData();
+                }
+            } catch(e) {}
+
             fetchConfigData();
 
             // Cek jika URL memiliki hash #sectionUnduhData
@@ -1126,16 +1135,24 @@
             }
         }
 
-        // 1. Ambil Konfigurasi Periode dari Backend
+        // 1. Ambil Konfigurasi Periode dari Backend (dengan anti-cache timestamp)
         function fetchConfigData() {
             const activeText = document.getElementById('currentActivePeriodText');
-            activeText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat...';
+            if (!currentConfig.periode_list || currentConfig.periode_list.length === 0) {
+                activeText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat...';
+            }
 
-            fetch(scriptURL + '?action=get_config')
+            fetch(scriptURL + '?action=get_config&_t=' + Date.now())
                 .then(r => r.json())
                 .then(res => {
                     if (res && res.config) {
                         currentConfig = res.config;
+                        try {
+                            localStorage.setItem('sipeka_full_config', JSON.stringify(currentConfig));
+                            if (currentConfig.periode_aktif) {
+                                localStorage.setItem('sipeka_periode_aktif', currentConfig.periode_aktif);
+                            }
+                        } catch(e) {}
                         renderPeriodData();
                     }
                 })
@@ -1148,7 +1165,10 @@
         // 2. Render Tampilan Periode
         function renderPeriodData() {
             document.getElementById('currentActivePeriodText').textContent = currentConfig.periode_aktif;
-            localStorage.setItem('sipeka_periode_aktif', currentConfig.periode_aktif);
+            try {
+                localStorage.setItem('sipeka_periode_aktif', currentConfig.periode_aktif);
+                localStorage.setItem('sipeka_full_config', JSON.stringify(currentConfig));
+            } catch(e) {}
 
             const tbody = document.getElementById('periodTableBody');
             if (!currentConfig.periode_list || currentConfig.periode_list.length === 0) {
