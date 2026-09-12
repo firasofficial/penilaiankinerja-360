@@ -79,6 +79,9 @@ function doPost(e) {
     if (action === "add_period") {
       return handleAddPeriod(params);
     }
+    if (action === "edit_period" || action === "update_period") {
+      return handleEditPeriod(params);
+    }
     if (action === "delete_period") {
       return handleDeletePeriod(params);
     }
@@ -348,6 +351,93 @@ function handleAddPeriod(params) {
   return ContentService.createTextOutput(JSON.stringify({
     status: "success",
     message: "Periode '" + nama + "' berhasil ditambahkan.",
+    config: getAppConfig()
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Mengubah / Mengedit Periode di Sheet 'Periode_List' & Memperbarui Nama Periode di Sheet Penilaian
+ */
+function handleEditPeriod(params) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const oldName = (params.old_nama_periode || params.old_nama || "").trim();
+  const newName = (params.new_nama_periode || params.new_nama || "").trim();
+  const newJenis = (params.new_jenis_periode || params.new_jenis || "Tahunan").trim();
+
+  if (!oldName || !newName) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: "Nama periode lama dan nama periode baru wajib diisi."
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  let periodSheet = ss.getSheetByName("Periode_List");
+  if (!periodSheet) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: "Daftar periode belum tersedia."
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // 1. Cek apakah nama baru sudah dipakai oleh baris lain
+  const data = periodSheet.getDataRange().getValues();
+  let foundRowIndex = -1;
+
+  for (let i = 1; i < data.length; i++) {
+    const currentName = String(data[i][0] || "").trim();
+    if (currentName.toLowerCase() === oldName.toLowerCase()) {
+      foundRowIndex = i + 1; // 1-indexed for Sheet
+    } else if (currentName.toLowerCase() === newName.toLowerCase()) {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "error",
+        message: "Nama periode '" + newName + "' sudah ada dalam daftar."
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
+  if (foundRowIndex === -1) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: "Periode '" + oldName + "' tidak ditemukan."
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // 2. Perbarui baris di sheet 'Periode_List'
+  periodSheet.getRange(foundRowIndex, 1).setValue(newName);
+  periodSheet.getRange(foundRowIndex, 2).setValue(newJenis);
+
+  // 3. Jika periode yang diedit adalah periode aktif, perbarui juga di 'Pengaturan'
+  const currentConfig = getAppConfig();
+  if (currentConfig.periode_aktif.toLowerCase() === oldName.toLowerCase()) {
+    handleSaveConfig({ periode_penilaian: newName });
+  }
+
+  // 4. Perbarui nama periode di seluruh sheet penilaian yang relevan (Cascade Update)
+  let updatedAssessmentCells = 0;
+  const allSheets = ss.getSheets();
+
+  allSheets.forEach(sheet => {
+    const sheetName = sheet.getName().toLowerCase();
+    if (sheetName !== "data_pegawai" && sheetName !== "users" && sheetName !== "pengaturan" && sheetName !== "config" && sheetName !== "periode_list" && sheetName !== "log_otp") {
+      const values = sheet.getDataRange().getValues();
+      if (values.length > 1) {
+        for (let r = 1; r < values.length; r++) {
+          for (let c = 0; c < values[r].length; c++) {
+            const cellVal = String(values[r][c] || "").trim();
+            if (cellVal.toLowerCase() === oldName.toLowerCase()) {
+              sheet.getRange(r + 1, c + 1).setValue(newName);
+              updatedAssessmentCells++;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "success",
+    message: "Periode '" + oldName + "' berhasil diubah menjadi '" + newName + "'.",
+    updated_assessments_count: updatedAssessmentCells,
     config: getAppConfig()
   })).setMimeType(ContentService.MimeType.JSON);
 }

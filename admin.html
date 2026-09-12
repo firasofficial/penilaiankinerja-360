@@ -660,6 +660,16 @@
             color: var(--primary-blue);
         }
 
+        .btn-edit-period {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .btn-edit-period:hover {
+            background: #fde68a;
+            color: #92400e;
+        }
+
         .btn-delete-period {
             background: #fef2f2;
             color: #ef4444;
@@ -1084,11 +1094,14 @@
                         <td style="text-align: right;">
                             <div class="action-btns">
                                 ${!isActive ? `
-                                    <button class="btn-table-action btn-set-active" onclick="setActivePeriod('${p.nama}')" title="Jadikan Periode Aktif">
+                                    <button class="btn-table-action btn-set-active" onclick="setActivePeriod('${p.nama.replace(/'/g, "\\'")}')" title="Jadikan Periode Aktif">
                                         <i class="fas fa-check"></i> Aktifkan
                                     </button>
                                 ` : ''}
-                                <button class="btn-table-action btn-delete-period" onclick="confirmDeletePeriod('${p.nama}')" title="Hapus Periode & Semua Data Penilaiannya">
+                                <button class="btn-table-action btn-edit-period" onclick="openEditPeriodModal('${p.nama.replace(/'/g, "\\'")}', '${(p.jenis || 'Tahunan').replace(/'/g, "\\'")}')" title="Edit Nama & Jenis Periode">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn-table-action btn-delete-period" onclick="confirmDeletePeriod('${p.nama.replace(/'/g, "\\'")}')" title="Hapus Periode & Semua Data Penilaiannya">
                                     <i class="fas fa-trash-alt"></i> Hapus
                                 </button>
                             </div>
@@ -1231,7 +1244,115 @@
             });
         }
 
-        // 6. Hapus Periode Penilaian (Cascade Delete)
+        // 6. Edit Periode Penilaian (Nama & Jenis Periode)
+        function openEditPeriodModal(oldNama, oldJenis) {
+            Swal.fire({
+                title: 'Edit Periode Penilaian',
+                html: `
+                    <div style="text-align: left; font-size: 0.88rem; color: #334155; margin-top: 10px;">
+                        <div style="margin-bottom: 14px;">
+                            <label style="display: block; font-weight: 700; margin-bottom: 5px; color: #1e293b;">Nama Periode</label>
+                            <input type="text" id="swalEditNama" class="swal2-input" value="${oldNama}" placeholder="Contoh: Tahun 2026" style="margin: 0; width: 100%; font-size: 0.9rem; box-sizing: border-box; height: 42px;">
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; font-weight: 700; margin-bottom: 5px; color: #1e293b;">Jenis Periode</label>
+                            <select id="swalEditJenis" class="swal2-select" style="margin: 0; width: 100%; font-size: 0.9rem; box-sizing: border-box; height: 42px; padding: 0 10px;">
+                                <option value="Tahunan" ${oldJenis === 'Tahunan' ? 'selected' : ''}>Tahunan (Contoh: Tahun 2026)</option>
+                                <option value="Bulanan" ${oldJenis === 'Bulanan' ? 'selected' : ''}>Bulanan (Contoh: Januari 2026)</option>
+                                <option value="Triwulan" ${oldJenis === 'Triwulan' ? 'selected' : ''}>Triwulan (Contoh: Triwulan I 2026)</option>
+                                <option value="Semester" ${oldJenis === 'Semester' ? 'selected' : ''}>Semester (Contoh: Semester I 2026)</option>
+                            </select>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 10px; border-radius: 6px; margin-top: 10px;">
+                            <i class="fas fa-info-circle" style="color: var(--secondary-blue);"></i> Jika nama periode diubah, data penilaian yang sudah tersimpan dengan periode ini akan otomatis disesuaikan ke nama baru.
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonColor: '#1e40af',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: '<i class="fas fa-save"></i> Simpan Perubahan',
+                cancelButtonText: 'Batal',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const newNama = document.getElementById('swalEditNama').value.trim();
+                    const newJenis = document.getElementById('swalEditJenis').value;
+                    if (!newNama) {
+                        Swal.showValidationMessage('Nama periode tidak boleh kosong!');
+                        return false;
+                    }
+                    return { newNama, newJenis };
+                }
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    const { newNama, newJenis } = result.value;
+
+                    // Jika tidak ada perubahan
+                    if (newNama === oldNama && newJenis === oldJenis) {
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Menyimpan Perubahan...',
+                        text: 'Sedang memperbarui daftar periode dan referensi data penilaian.',
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+
+                    const formData = new FormData();
+                    formData.append('action', 'edit_period');
+                    formData.append('old_nama_periode', oldNama);
+                    formData.append('new_nama_periode', newNama);
+                    formData.append('new_jenis_periode', newJenis);
+
+                    fetch(scriptURL, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.status === 'success') {
+                            if (res.config) {
+                                currentConfig = res.config;
+                            } else {
+                                if (currentConfig.periode_aktif.toLowerCase() === oldNama.toLowerCase()) {
+                                    currentConfig.periode_aktif = newNama;
+                                }
+                                const target = currentConfig.periode_list.find(p => p.nama.toLowerCase() === oldNama.toLowerCase());
+                                if (target) {
+                                    target.nama = newNama;
+                                    target.jenis = newJenis;
+                                }
+                            }
+                            renderPeriodData();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Periode Berhasil Diperbarui!',
+                                text: res.message || `Periode "${oldNama}" telah diubah menjadi "${newNama}".`,
+                                confirmButtonColor: '#1e40af'
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal Memperbarui Periode',
+                                text: res.message || 'Terjadi kesalahan sistem.',
+                                confirmButtonColor: '#ef4444'
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal Terhubung',
+                            text: 'Pastikan koneksi internet stabil dan coba lagi.',
+                            confirmButtonColor: '#ef4444'
+                        });
+                    });
+                }
+            });
+        }
+
+        // 7. Hapus Periode Penilaian (Cascade Delete)
         function confirmDeletePeriod(namaPeriode) {
             Swal.fire({
                 title: 'Hapus Periode & Semua Data?',
