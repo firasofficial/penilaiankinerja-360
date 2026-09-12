@@ -520,12 +520,13 @@
                         <option value="Kecamatan Birem Bayeun">Kecamatan Birem Bayeun</option>
                         <option value="Kecamatan Rantau Peureulak">Kecamatan Rantau Peureulak</option>
                     </select>
+                    <small style="display: block; margin-top: 6px; color: #2563eb; font-weight: 600; font-size: 0.8rem;">*Bisa cari berdasarkan NIP/Nama</small>
                 </div>
             </div>
 
             <div class="form-grid">
                 <div class="form-group autocomplete-wrapper">
-                    <label for="nip_bawahan">NIP Rekan Sejawat <span style="font-size: 0.78rem; color: #2563eb; font-weight: 600; display: block; margin-top: 2px;">*Bisa cari berdasarkan NIP/Nama</span></label>
+                    <label for="nip_bawahan">NIP Rekan Sejawat</label>
                     <input type="text" id="nip_bawahan" name="nip_bawahan" maxlength="18" placeholder="18 Digit NIP Tanpa Spasi" required oninput="this.value = this.value.replace(/[^0-9]/g, '')" autocomplete="off">
                     <div id="nipSuggestions" class="autocomplete-dropdown" style="display: none;"></div>
                 </div>
