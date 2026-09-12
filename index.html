@@ -49,16 +49,51 @@
                         window.location.replace('login.html');
                     }
                 });
+            // Expose dropdown toggle
+            window.toggleIndexDropdown = function (event) {
+                if (event) event.stopPropagation();
+                const wrapper = document.getElementById('profileDropdownWrapper');
+                if (wrapper) wrapper.classList.toggle('active');
             };
+
+            document.addEventListener('click', function (event) {
+                const wrapper = document.getElementById('profileDropdownWrapper');
+                if (wrapper && !wrapper.contains(event.target)) {
+                    wrapper.classList.remove('active');
+                }
+            });
 
             document.addEventListener('DOMContentLoaded', function () {
                 const badge = document.getElementById('userBadge');
                 const profileName = document.getElementById('profileName');
                 const profileNip = document.getElementById('profileNip');
+                const menuUserName = document.getElementById('menuUserName');
+                const menuUserRole = document.getElementById('menuUserRole');
+                const adminMenuItems = document.getElementById('adminMenuItems');
+                const avatarCircle = document.getElementById('userAvatarCircle');
+
+                const ADMIN_NIP = '200210242025041002';
+                const isAdmin = String(user.nip).trim() === ADMIN_NIP;
 
                 if (badge && profileName && profileNip) {
                     profileName.textContent = user.nama;
                     profileNip.textContent = 'NIP. ' + user.nip;
+                    if (menuUserName) menuUserName.textContent = user.nama;
+                    
+                    if (isAdmin) {
+                        if (menuUserRole) {
+                            menuUserRole.innerHTML = '<i class="fas fa-shield-alt"></i> Administrator';
+                            menuUserRole.style.background = '#fef3c7';
+                            menuUserRole.style.color = '#92400e';
+                        }
+                        if (adminMenuItems) {
+                            adminMenuItems.style.display = 'block';
+                        }
+                        if (avatarCircle) {
+                            avatarCircle.innerHTML = '<i class="fas fa-user-shield"></i>';
+                        }
+                    }
+
                     badge.style.display = 'flex';
                 }
 
@@ -269,7 +304,11 @@
             display: block;
         }
 
-        /* --- User Profile Badge --- */
+        /* --- User Profile Badge & Dropdown --- */
+        .profile-dropdown-wrapper {
+            position: relative;
+        }
+
         .user-badge {
             display: flex;
             align-items: center;
@@ -283,6 +322,14 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             position: relative;
             z-index: 100;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .user-badge:hover {
+            background: rgba(255, 255, 255, 0.22);
+            border-color: rgba(255, 255, 255, 0.4);
         }
 
         .user-avatar-circle {
@@ -322,6 +369,114 @@
             color: #93c5fd;
             margin-top: 1px;
             font-weight: 600;
+        }
+
+        .dropdown-chevron {
+            color: #ffffff;
+            font-size: 0.75rem;
+            margin-left: 2px;
+            transition: transform 0.2s ease;
+        }
+
+        .profile-dropdown-wrapper.active .dropdown-chevron {
+            transform: rotate(180deg);
+        }
+
+        /* --- Dropdown Menu Popup in Index --- */
+        .profile-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            width: 250px;
+            padding: 8px 0;
+            display: none;
+            flex-direction: column;
+            z-index: 1100;
+            animation: dropdownFade 0.2s ease;
+        }
+
+        .profile-dropdown-wrapper.active .profile-dropdown-menu {
+            display: flex;
+        }
+
+        @keyframes dropdownFade {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-header-info {
+            padding: 10px 16px 8px;
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
+            margin-bottom: 4px;
+        }
+
+        .dropdown-header-info .name {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+            margin: 0;
+        }
+
+        .dropdown-header-info .role-tag {
+            display: inline-block;
+            background: #eff6ff;
+            color: var(--secondary-blue);
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 4px;
+        }
+
+        .dropdown-item {
+            padding: 10px 16px;
+            color: var(--text-dark);
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .dropdown-item i {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+            color: var(--secondary-blue);
+        }
+
+        .dropdown-item:hover {
+            background: #eff6ff;
+            color: var(--primary-blue);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 6px 0;
+        }
+
+        .dropdown-item.text-danger {
+            color: #dc2626;
+        }
+
+        .dropdown-item.text-danger i {
+            color: #dc2626;
+        }
+
+        .dropdown-item.text-danger:hover {
+            background: #fee2e2;
+            color: #b91c1c;
         }
 
         .btn-logout {
@@ -683,16 +838,39 @@
                 <div class="logo-akhlak-wrapper">
                     <img src="Logo_BerAKHLAK.png" alt="Logo Ber-AKHLAK Bangga Melayani Bangsa" class="logo-akhlak"> 
                 </div>
-                <div class="header-separator"></div>
-                <div class="user-badge" id="userBadge" style="display: none;">
-                    <div class="user-avatar-circle"><i class="fas fa-user"></i></div>
-                    <div class="user-details">
-                        <span class="user-name" id="profileName">Loading...</span>
-                        <span class="user-nip" id="profileNip">NIP. -</span>
+                <!-- Profile Badge & Dropdown Trigger -->
+                <div class="profile-dropdown-wrapper" id="profileDropdownWrapper">
+                    <div class="user-badge" id="userBadge" style="display: none;" onclick="toggleIndexDropdown(event)">
+                        <div class="user-avatar-circle" id="userAvatarCircle"><i class="fas fa-user"></i></div>
+                        <div class="user-details">
+                            <span class="user-name" id="profileName">Loading...</span>
+                            <span class="user-nip" id="profileNip">NIP. -</span>
+                        </div>
+                        <i class="fas fa-chevron-down dropdown-chevron"></i>
                     </div>
-                    <button class="btn-logout" id="btnLogout" type="button" onclick="confirmLogout(event)" title="Keluar dari Sistem">
-                        <i class="fas fa-right-from-bracket"></i>
-                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div class="profile-dropdown-menu" id="profileDropdownMenu">
+                        <div class="dropdown-header-info">
+                            <p class="name" id="menuUserName">Pegawai</p>
+                            <span class="role-tag" id="menuUserRole"><i class="fas fa-user-check"></i> Pegawai ASN</span>
+                        </div>
+                        
+                        <!-- Menu Khusus Admin (NIP 200210242025041002) -->
+                        <div id="adminMenuItems" style="display: none;">
+                            <a href="admin.html" class="dropdown-item">
+                                <i class="fas fa-sliders"></i> Setting Periode Penilaian
+                            </a>
+                            <a href="admin.html#sectionUnduhData" class="dropdown-item">
+                                <i class="fas fa-file-excel"></i> Unduh Data SIPEKA 360
+                            </a>
+                            <div class="dropdown-divider"></div>
+                        </div>
+
+                        <button class="dropdown-item text-danger" onclick="confirmLogout(event)">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

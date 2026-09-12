@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin SIPEKA 360° | Kab. Aceh Timur</title>
+    <link rel="icon" type="image/png" href="Lambang_Kabupaten_Aceh_Timur.png">
+
+    <!-- Fonts & Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- SweetAlert2 & SheetJS (xlsx export) -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <script>
+        (function () {
+            'use strict';
+            const userStr = sessionStorage.getItem('penilaian360_user');
+            if (!userStr) {
+                window.location.replace('login.html');
+                return;
+            }
+            const user = JSON.parse(userStr);
+            if (!user || !user.loggedIn) {
+                window.location.replace('login.html');
+                return;
+            }
+
+            // Proteksi Admin: Hanya NIP 200210242025041002 yang berhak mengakses
+            const ADMIN_NIP = '200210242025041002';
+            if (String(user.nip).trim() !== ADMIN_NIP) {
+                document.addEventListener('DOMContentLoaded', function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Akses Ditolak',
+                        text: 'Anda tidak memiliki hak akses Administrator ke halaman ini.',
+                        confirmButtonColor: '#1e40af',
+                        confirmButtonText: 'Kembali ke Beranda',
+                        allowOutsideClick: false
+                    }).then(() => {
+                        window.location.replace('index.html');
+                    });
+                });
+            }
+
+            // Global Logout
+            window.confirmLogout = function (event) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                Swal.fire({
+                    title: 'Konfirmasi Keluar',
+                    text: 'Apakah Anda yakin ingin keluar dari sistem SIPEKA 360?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: '<i class="fas fa-sign-out-alt"></i> Ya, Keluar',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        sessionStorage.removeItem('penilaian360_user');
+                        window.location.replace('login.html');
+                    }
+                });
+            };
+        })();
+    </script>
+
+    <style>
+        :root {
+            --primary-blue: #0f3e8b;
+            --secondary-blue: #2563eb;
+            --light-bg: #f8fafc;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            margin: 0;
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Header --- */
+        header {
+            background: linear-gradient(135deg, #092556 0%, #0f3e8b 55%, #1e40af 100%);
+            padding: 10px 24px;
+            border-top: 4px solid #f59e0b;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 4px 20px -2px rgba(9, 37, 86, 0.25);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .header-logo img {
+            width: 44px;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+        }
+
+        .header-title h1 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-badge-title {
+            background: #f59e0b;
+            color: #0f172a;
+            font-size: 0.65rem;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-subtitle {
+            font-size: 0.74rem;
+            font-weight: 500;
+            color: #bfdbfe;
+            margin-top: 2px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-nav-home {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 6px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-nav-home:hover {
+            background: rgba(255, 255, 255, 0.28);
+            transform: translateY(-1px);
+        }
+
+        /* --- User Profile with Dropdown Menu --- */
+        .profile-dropdown-wrapper {
+            position: relative;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            padding: 4px 12px 4px 6px;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .user-badge:hover {
+            background: rgba(255, 255, 255, 0.24);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .user-avatar-circle {
+            width: 32px;
+            height: 32px;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-blue);
+            font-size: 0.95rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .user-name {
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: #ffffff;
+            max-width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+
+        .user-nip {
+            font-size: 0.66rem;
+            color: #93c5fd;
+            font-weight: 600;
+        }
+
+        .dropdown-chevron {
+            color: #ffffff;
+            font-size: 0.75rem;
+            margin-left: 2px;
+            transition: transform 0.2s ease;
+        }
+
+        .profile-dropdown-wrapper.active .dropdown-chevron {
+            transform: rotate(180deg);
+        }
+
+        /* --- Dropdown Menu Popup --- */
+        .admin-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            width: 260px;
+            padding: 8px 0;
+            display: none;
+            flex-direction: column;
+            z-index: 1100;
+            animation: dropdownFade 0.2s ease;
+        }
+
+        .profile-dropdown-wrapper.active .admin-dropdown-menu {
+            display: flex;
+        }
+
+        @keyframes dropdownFade {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-header-info {
+            padding: 10px 16px 8px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 4px;
+        }
+
+        .dropdown-header-info .name {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+            margin: 0;
+        }
+
+        .dropdown-header-info .role-tag {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 4px;
+        }
+
+        .dropdown-item {
+            padding: 10px 16px;
+            color: var(--text-dark);
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .dropdown-item i {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+            color: var(--secondary-blue);
+        }
+
+        .dropdown-item:hover {
+            background: #eff6ff;
+            color: var(--primary-blue);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 6px 0;
+        }
+
+        .dropdown-item.text-danger {
+            color: #dc2626;
+        }
+
+        .dropdown-item.text-danger i {
+            color: #dc2626;
+        }
+
+        .dropdown-item.text-danger:hover {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        /* --- Main Container --- */
+        .admin-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 24px auto;
+            padding: 0 20px;
+            flex: 1;
+        }
+
+        /* --- Quick Action Cards --- */
+        .admin-hero-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            border-radius: 16px;
+            padding: 24px 28px;
+            color: #ffffff;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.25);
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .hero-text h2 {
+            margin: 0 0 6px;
+            font-size: 1.45rem;
+            font-weight: 800;
+        }
+
+        .hero-text p {
+            margin: 0;
+            font-size: 0.88rem;
+            color: #dbeafe;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action-hero {
+            background: #ffffff;
+            color: var(--primary-blue);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .btn-action-hero:hover {
+            background: #f8fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+
+        .btn-action-hero.btn-hero-green {
+            background: #10b981;
+            color: #ffffff;
+        }
+
+        .btn-action-hero.btn-hero-green:hover {
+            background: #059669;
+        }
+
+        /* --- Panel Card Layout --- */
+        .grid-panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-panels {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+        }
+
+        .panel-header h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-header h3 i {
+            color: var(--secondary-blue);
+        }
+
+        .panel-body {
+            padding: 24px;
+            flex: 1;
+        }
+
+        /* --- Active Period Banner --- */
+        .active-period-box {
+            background: #eff6ff;
+            border: 2px dashed #93c5fd;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .active-period-info .label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .active-period-info .value {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-live {
+            background: #10b981;
+            color: #ffffff;
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 100px;
+            font-weight: 700;
+        }
+
+        /* --- Form Styles --- */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-family: inherit;
+            color: var(--text-dark);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .btn-primary {
+            background: var(--secondary-blue);
+            color: #ffffff;
+            border: none;
+            padding: 11px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-blue);
+        }
+
+        /* --- Table Daftar Periode --- */
+        .table-responsive {
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .table-periods {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.84rem;
+            text-align: left;
+        }
+
+        .table-periods th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            font-weight: 700;
+            color: #475569;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .table-periods td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .table-periods tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-periods tr:hover {
+            background: #f8fafc;
+        }
+
+        .badge-jenis {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .badge-active-status {
+            background: #dcfce7;
+            color: #15803d;
+            padding: 3px 8px;
+            border-radius: 100px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-btns {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            justify-content: flex-end;
+        }
+
+        .btn-table-action {
+            border: none;
+            background: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-set-active {
+            background: #eff6ff;
+            color: var(--secondary-blue);
+        }
+
+        .btn-set-active:hover {
+            background: #dbeafe;
+            color: var(--primary-blue);
+        }
+
+        .btn-delete-period {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+
+        .btn-delete-period:hover {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        /* --- Download Center Panel --- */
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .download-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .download-card {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            background: #ffffff;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .download-card:hover {
+            border-color: #93c5fd;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .download-card .icon-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #eff6ff;
+            color: var(--secondary-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin: 0 auto 10px;
+        }
+
+        .download-card h4 {
+            margin: 0 0 4px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .download-card p {
+            margin: 0 0 12px;
+            font-size: 0.76rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .btn-download-sheet {
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            color: var(--text-dark);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-download-sheet:hover {
+            background: var(--secondary-blue);
+            color: #ffffff;
+            border-color: var(--secondary-blue);
+        }
+
+        /* --- Footer --- */
+        footer {
+            padding: 16px 20px;
+            background: #ffffff;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-text {
+            margin: 0;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .footer-instansi {
+            color: var(--primary-blue);
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Panel Admin -->
+    <header>
+        <div class="header-container">
+            <div class="header-left">
+                <div class="header-logo">
+                    <img src="Lambang_Kabupaten_Aceh_Timur.png" alt="Logo Kabupaten Aceh Timur">
+                </div>
+                <div class="header-title">
+                    <h1>SIPEKA 360° <span class="admin-badge-title">Panel Admin</span></h1>
+                    <span class="header-subtitle">Pemerintah Kabupaten Aceh Timur</span>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <a href="index.html" class="btn-nav-home" title="Kembali ke Beranda Penilaian">
+                    <i class="fas fa-home"></i> Beranda SIPEKA
+                </a>
+
+                <!-- Profile Badge & Dropdown Trigger -->
+                <div class="profile-dropdown-wrapper" id="profileDropdownWrapper">
+                    <div class="user-badge" id="profileTrigger" onclick="toggleDropdownMenu(event)">
+                        <div class="user-avatar-circle"><i class="fas fa-user-shield"></i></div>
+                        <div class="user-details">
+                            <span class="user-name" id="adminProfileName">Administrator</span>
+                            <span class="user-nip" id="adminProfileNip">NIP. 200210242025041002</span>
+                        </div>
+                        <i class="fas fa-chevron-down dropdown-chevron"></i>
+                    </div>
+
+                    <!-- Dropdown Menu -->
+                    <div class="admin-dropdown-menu" id="adminDropdownMenu">
+                        <div class="dropdown-header-info">
+                            <p class="name" id="menuAdminName">Admin SIPEKA</p>
+                            <span class="role-tag"><i class="fas fa-shield-alt"></i> Super Administrator</span>
+                        </div>
+                        <button class="dropdown-item" onclick="scrollToSection('sectionManajemenPeriode')">
+                            <i class="fas fa-calendar-check"></i> Setting Periode Penilaian
+                        </button>
+                        <button class="dropdown-item" onclick="downloadAllSipekaData()">
+                            <i class="fas fa-file-excel"></i> Unduh Data SIPEKA 360
+                        </button>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item text-danger" onclick="confirmLogout(event)">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-container">
+        <!-- Hero Header -->
+        <div class="admin-hero-card">
+            <div class="hero-text">
+                <h2>Selamat Datang di Panel Manajemen SIPEKA 360°</h2>
+                <p>Kelola periode penilaian aktif, tambah/hapus siklus penilaian, dan unduh rekapan penilaian kepegawaian.</p>
+            </div>
+            <div class="hero-actions">
+                <button class="btn-action-hero btn-hero-green" onclick="downloadAllSipekaData()">
+                    <i class="fas fa-cloud-arrow-down"></i> Unduh Semua Sheet SIPEKA (.xlsx)
+                </button>
+            </div>
+        </div>
+
+        <!-- Section: Manajemen Periode Penilaian -->
+        <div class="grid-panels" id="sectionManajemenPeriode">
+            <!-- Panel 1: Tambah Periode Penilaian -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <h3><i class="fas fa-plus-circle"></i> Tambah Periode Penilaian</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="active-period-box">
+                        <div class="active-period-info">
+                            <div class="label">Periode Penilaian Aktif Saat Ini</div>
+                            <div class="value">
+                                <span id="currentActivePeriodText">Memuat...</span>
+                                <span class="badge-live"><i class="fas fa-circle-dot"></i> AKTIF</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="formAddPeriod" onsubmit="submitAddPeriod(event)">
+                        <div class="form-group">
+                            <label for="inputJenisPeriode">Jenis Periode Penilaian</label>
+                            <select id="inputJenisPeriode" class="form-select" onchange="handleJenisPeriodeChange()">
+                                <option value="Tahunan" selected>Tahunan (Contoh: Tahun 2025, Tahun 2026)</option>
+                                <option value="Bulanan">Bulanan (Contoh: Januari 2025, Februari 2025)</option>
+                                <option value="Triwulan">Triwulan (Contoh: Triwulan I 2025)</option>
+                                <option value="Semester">Semester (Contoh: Semester I 2025)</option>
+                                <option value="Kustom">Kustom / Lainnya</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="inputNamaPeriode">Nama Periode</label>
+                            <input type="text" id="inputNamaPeriode" class="form-control" placeholder="Contoh: Tahun 2026" required autocomplete="off">
+                            <small style="color: #64748b; font-size: 0.74rem; display: block; margin-top: 4px;">
+                                Nama periode ini yang akan otomatis terkunci di form penilaian pegawai.
+                            </small>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem;">
+                                <input type="checkbox" id="checkAutoActive" checked style="width: 16px; height: 16px; accent-color: var(--secondary-blue);">
+                                Langsung jadikan sebagai Periode Aktif
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn-primary" id="btnSubmitPeriod">
+                            <i class="fas fa-save"></i> Simpan Periode Baru
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Panel 2: Daftar & Pengaturan Periode -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <h3><i class="fas fa-list-check"></i> Daftar Periode Penilaian</h3>
+                    <button class="btn-table-action btn-set-active" onclick="fetchConfigData()" title="Muat Ulang Data">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+                <div class="panel-body">
+                    <p style="font-size: 0.8rem; color: #64748b; margin-top: 0; margin-bottom: 12px;">
+                        Pilih periode yang ingin diaktifkan di form, atau hapus periode lama.
+                    </p>
+
+                    <div class="table-responsive">
+                        <table class="table-periods">
+                            <thead>
+                                <tr>
+                                    <th>Nama Periode</th>
+                                    <th>Jenis</th>
+                                    <th>Status</th>
+                                    <th style="text-align: right;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="periodTableBody">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: #94a3b8; padding: 20px;">
+                                        <i class="fas fa-spinner fa-spin"></i> Memuat daftar periode...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Unduh Data SIPEKA 360 -->
+        <div class="panel-card" id="sectionUnduhData" style="margin-bottom: 30px;">
+            <div class="panel-header">
+                <h3><i class="fas fa-download"></i> Unduh Data SIPEKA 360° (Penilaian Atasan, Bawahan & Rekan Sejawat)</h3>
+                <button class="btn-action-hero btn-hero-green" style="padding: 6px 14px; font-size: 0.8rem;" onclick="downloadAllSipekaData()">
+                    <i class="fas fa-file-excel"></i> Unduh Semua Sheet (.xlsx)
+                </button>
+            </div>
+            <div class="panel-body">
+                <p style="font-size: 0.84rem; color: #475569; margin-top: 0; margin-bottom: 16px;">
+                    Download database penilaian pegawai yang telah terekam di Google Sheets. Anda dapat mengunduh seluruh lembar kerja (Workbook) sekaligus dalam format <strong>Excel (.xlsx)</strong> atau per tab.
+                </p>
+
+                <div class="download-grid">
+                    <div class="download-card">
+                        <div>
+                            <div class="icon-circle"><i class="fas fa-user-tie"></i></div>
+                            <h4>Penilaian Atasan</h4>
+                            <p>Data responden dan penilaian kinerja perilaku oleh Atasan Langsung.</p>
+                        </div>
+                        <button class="btn-download-sheet" onclick="downloadSpecificSheet('Atasan')">
+                            <i class="fas fa-file-csv"></i> Unduh Tab Atasan
+                        </button>
+                    </div>
+
+                    <div class="download-card">
+                        <div>
+                            <div class="icon-circle"><i class="fas fa-user-group"></i></div>
+                            <h4>Penilaian Rekan Sejawat</h4>
+                            <p>Data penilaian umpan balik rekan kerja sejawat ASN.</p>
+                        </div>
+                        <button class="btn-download-sheet" onclick="downloadSpecificSheet('Rekan')">
+                            <i class="fas fa-file-csv"></i> Unduh Tab Rekan
+                        </button>
+                    </div>
+
+                    <div class="download-card">
+                        <div>
+                            <div class="icon-circle"><i class="fas fa-user"></i></div>
+                            <h4>Penilaian Bawahan</h4>
+                            <p>Data penilaian bawahan terhadap pimpinan/pejabat struktural.</p>
+                        </div>
+                        <button class="btn-download-sheet" onclick="downloadSpecificSheet('Bawahan')">
+                            <i class="fas fa-file-csv"></i> Unduh Tab Bawahan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p class="footer-text">
+            © 2026 SIPEKA 360° • <span class="footer-instansi">Pemerintah Kabupaten Aceh Timur</span>
+        </p>
+    </footer>
+
+    <!-- Script Logika Admin -->
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxBY9zpJEDI-tY1ImE-YVjEInRJMSrIIEtZHNs-EbiRCpbk9QmJa1Da1Ooabs7MgirP/exec';
+        let currentConfig = {
+            periode_aktif: 'Tahun 2025',
+            periode_list: []
+        };
+        let cachedAllSheetsData = null;
+
+        // Inisialisasi Data Profil
+        document.addEventListener('DOMContentLoaded', function () {
+            const userStr = sessionStorage.getItem('penilaian360_user');
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                document.getElementById('adminProfileName').textContent = user.nama || 'Administrator';
+                document.getElementById('adminProfileNip').textContent = 'NIP. ' + (user.nip || '200210242025041002');
+                document.getElementById('menuAdminName').textContent = user.nama || 'Administrator';
+            }
+
+            fetchConfigData();
+        });
+
+        // Toggle Profile Dropdown Menu
+        function toggleDropdownMenu(e) {
+            e.stopPropagation();
+            const wrapper = document.getElementById('profileDropdownWrapper');
+            wrapper.classList.toggle('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            const wrapper = document.getElementById('profileDropdownWrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                wrapper.classList.remove('active');
+            }
+        });
+
+        function scrollToSection(sectionId) {
+            const el = document.getElementById(sectionId);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            const wrapper = document.getElementById('profileDropdownWrapper');
+            if (wrapper) wrapper.classList.remove('active');
+        }
+
+        // 1. Ambil Konfigurasi Periode dari Backend
+        function fetchConfigData() {
+            const activeText = document.getElementById('currentActivePeriodText');
+            activeText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat...';
+
+            fetch(scriptURL + '?action=get_config')
+                .then(r => r.json())
+                .then(res => {
+                    if (res && res.config) {
+                        currentConfig = res.config;
+                        renderPeriodData();
+                    }
+                })
+                .catch(err => {
+                    console.warn('Gagal memuat config:', err);
+                    activeText.textContent = currentConfig.periode_aktif;
+                });
+        }
+
+        // 2. Render Tampilan Periode
+        function renderPeriodData() {
+            document.getElementById('currentActivePeriodText').textContent = currentConfig.periode_aktif;
+            localStorage.setItem('sipeka_periode_aktif', currentConfig.periode_aktif);
+
+            const tbody = document.getElementById('periodTableBody');
+            if (!currentConfig.periode_list || currentConfig.periode_list.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #94a3b8; padding: 20px;">
+                            Belum ada daftar periode yang tersimpan.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            currentConfig.periode_list.forEach(p => {
+                const isActive = p.nama.trim().toLowerCase() === currentConfig.periode_aktif.trim().toLowerCase();
+                html += `
+                    <tr>
+                        <td><strong>${p.nama}</strong></td>
+                        <td><span class="badge-jenis">${p.jenis || 'Tahunan'}</span></td>
+                        <td>
+                            ${isActive 
+                                ? '<span class="badge-active-status"><i class="fas fa-circle-check"></i> Aktif</span>' 
+                                : '<span style="color: #94a3b8; font-size: 0.78rem;">Tidak Aktif</span>'
+                            }
+                        </td>
+                        <td style="text-align: right;">
+                            <div class="action-btns">
+                                ${!isActive ? `
+                                    <button class="btn-table-action btn-set-active" onclick="setActivePeriod('${p.nama}')" title="Jadikan Periode Aktif">
+                                        <i class="fas fa-check"></i> Aktifkan
+                                    </button>
+                                ` : ''}
+                                <button class="btn-table-action btn-delete-period" onclick="confirmDeletePeriod('${p.nama}')" title="Hapus Periode & Semua Data Penilaiannya">
+                                    <i class="fas fa-trash-alt"></i> Hapus
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // 3. Ubah Format Contoh Nama saat Jenis Periode Berubah
+        function handleJenisPeriodeChange() {
+            const jenis = document.getElementById('inputJenisPeriode').value;
+            const inputNama = document.getElementById('inputNamaPeriode');
+            const nowYear = new Date().getFullYear();
+
+            if (jenis === 'Tahunan') {
+                inputNama.value = 'Tahun ' + (nowYear + 1);
+            } else if (jenis === 'Bulanan') {
+                inputNama.value = 'Januari ' + nowYear;
+            } else if (jenis === 'Triwulan') {
+                inputNama.value = 'Triwulan I ' + nowYear;
+            } else if (jenis === 'Semester') {
+                inputNama.value = 'Semester I ' + nowYear;
+            } else {
+                inputNama.value = '';
+            }
+        }
+
+        // 4. Tambah Periode Baru
+        function submitAddPeriod(e) {
+            e.preventDefault();
+            const nama = document.getElementById('inputNamaPeriode').value.trim();
+            const jenis = document.getElementById('inputJenisPeriode').value;
+            const setActive = document.getElementById('checkAutoActive').checked;
+            const btn = document.getElementById('btnSubmitPeriod');
+
+            if (!nama) return;
+
+            const originalBtn = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('action', 'add_period');
+            formData.append('nama_periode', nama);
+            formData.append('jenis_periode', jenis);
+            formData.append('set_active', setActive);
+
+            fetch(scriptURL, {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(res => {
+                btn.innerHTML = originalBtn;
+                btn.disabled = false;
+
+                if (res.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Periode Berhasil Ditambahkan!',
+                        text: res.message,
+                        confirmButtonColor: '#1e40af'
+                    });
+                    document.getElementById('inputNamaPeriode').value = '';
+                    if (res.config) {
+                        currentConfig = res.config;
+                        renderPeriodData();
+                    } else {
+                        fetchConfigData();
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Menambah Periode',
+                        text: res.message || 'Terjadi kesalahan sistem.',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+            })
+            .catch(err => {
+                btn.innerHTML = originalBtn;
+                btn.disabled = false;
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Terhubung',
+                    text: 'Pastikan koneksi internet stabil dan coba lagi.',
+                    confirmButtonColor: '#ef4444'
+                });
+            });
+        }
+
+        // 5. Jadikan Periode Aktif
+        function setActivePeriod(namaPeriode) {
+            Swal.fire({
+                title: 'Aktifkan Periode?',
+                text: `Formulir penilaian akan secara otomatis menggunakan periode: "${namaPeriode}".`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#1e40af',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Ya, Aktifkan',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Menyimpan Pengaturan...',
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+
+                    const formData = new FormData();
+                    formData.append('action', 'save_config');
+                    formData.append('periode_penilaian', namaPeriode);
+
+                    fetch(scriptURL, { method: 'POST', body: formData })
+                        .then(r => r.json())
+                        .then(res => {
+                            currentConfig.periode_aktif = namaPeriode;
+                            renderPeriodData();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Periode Aktif Diperbarui!',
+                                text: `Periode aktif sekarang adalah ${namaPeriode}`,
+                                confirmButtonColor: '#1e40af'
+                            });
+                        })
+                        .catch(() => {
+                            currentConfig.periode_aktif = namaPeriode;
+                            renderPeriodData();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Periode Aktif Diperbarui!',
+                                text: `Periode aktif sekarang adalah ${namaPeriode}`,
+                                confirmButtonColor: '#1e40af'
+                            });
+                        });
+                }
+            });
+        }
+
+        // 6. Hapus Periode Penilaian (Cascade Delete)
+        function confirmDeletePeriod(namaPeriode) {
+            Swal.fire({
+                title: 'Hapus Periode & Semua Data?',
+                html: `
+                    <div style="text-align: left; font-size: 0.88rem; color: #475569;">
+                        <p style="margin-bottom: 8px;">Anda akan menghapus periode: <strong>"${namaPeriode}"</strong>.</p>
+                        <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 10px 12px; border-radius: 6px; color: #991b1b;">
+                            <strong><i class="fas fa-triangle-exclamation"></i> PERINGATAN:</strong><br>
+                            Semua data penilaian pegawai (Atasan, Bawahan, Rekan Sejawat) yang dibuat pada periode <strong>"${namaPeriode}"</strong> akan <strong>DIHAPUS PERMANEN</strong> dari database.
+                        </div>
+                    </div>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: '<i class="fas fa-trash-alt"></i> Ya, Hapus Semua',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Menghapus Data Penilaian...',
+                        text: 'Proses ini mungkin memakan waktu beberapa detik.',
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+
+                    const formData = new FormData();
+                    formData.append('action', 'delete_period');
+                    formData.append('nama_periode', namaPeriode);
+
+                    fetch(scriptURL, { method: 'POST', body: formData })
+                        .then(r => r.json())
+                        .then(res => {
+                            if (res.status === 'success') {
+                                if (res.config) currentConfig = res.config;
+                                renderPeriodData();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil Dihapus!',
+                                    text: res.message || `Periode ${namaPeriode} dan seluruh data penilaiannya telah dihapus.`,
+                                    confirmButtonColor: '#1e40af'
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal Menghapus',
+                                    text: res.message || 'Terjadi kesalahan sistem.',
+                                    confirmButtonColor: '#ef4444'
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal Terhubung',
+                                text: 'Gagal menghubungi server database.',
+                                confirmButtonColor: '#ef4444'
+                            });
+                        });
+                }
+            });
+        }
+
+        // 7. Ambil Data Semua Sheet dari Spreadsheet
+        async function fetchAllSheetsData() {
+            if (cachedAllSheetsData) return cachedAllSheetsData;
+
+            const res = await fetch(scriptURL + '?action=get_all_penilaian_data');
+            const data = await res.json();
+            if (data && data.status === 'success') {
+                cachedAllSheetsData = data.sheets;
+                return cachedAllSheetsData;
+            }
+            throw new Error(data.message || 'Gagal mengambil data penilaian');
+        }
+
+        // 8. Unduh Semua Sheet SIPEKA 360 (Excel Workbook .xlsx)
+        async function downloadAllSipekaData() {
+            const wrapper = document.getElementById('profileDropdownWrapper');
+            if (wrapper) wrapper.classList.remove('active');
+
+            Swal.fire({
+                title: 'Mempersiapkan Unduhan...',
+                text: 'Sedang mengambil data penilaian Atasan, Rekan, dan Bawahan dari database...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            try {
+                const sheets = await fetchAllSheetsData();
+                const wb = XLSX.utils.book_new();
+                let addedSheetsCount = 0;
+
+                for (let sheetName in sheets) {
+                    const rows = sheets[sheetName];
+                    if (rows && rows.length > 0) {
+                        const ws = XLSX.utils.aoa_to_sheet(rows);
+                        // Bersihkan nama sheet jika terlalu panjang
+                        let cleanName = sheetName.replace(/[\\/?*[\]]/g, '').substring(0, 31);
+                        XLSX.utils.book_append_sheet(wb, ws, cleanName || 'Sheet');
+                        addedSheetsCount++;
+                    }
+                }
+
+                if (addedSheetsCount === 0) {
+                    // Fallback sheet
+                    const ws = XLSX.utils.aoa_to_sheet([["Info"], ["Belum ada data penilaian"]]);
+                    XLSX.utils.book_append_sheet(wb, ws, "SIPEKA_360");
+                }
+
+                const filename = `SIPEKA_360_Semua_Penilaian_Aceh_Timur_${new Date().toISOString().slice(0,10)}.xlsx`;
+                XLSX.writeFile(wb, filename);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Unduhan Berhasil!',
+                    text: `File workbook Excel "${filename}" telah berhasil diunduh.`,
+                    confirmButtonColor: '#1e40af'
+                });
+
+            } catch (err) {
+                console.error(err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Mengunduh',
+                    text: 'Terjadi kendala saat mengunduh data spreadsheet: ' + err.message,
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+        }
+
+        // 9. Unduh Spesifik Sheet Penilaian
+        async function downloadSpecificSheet(keyword) {
+            Swal.fire({
+                title: 'Mengunduh Data...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            try {
+                const sheets = await fetchAllSheetsData();
+                let targetSheetName = null;
+
+                for (let sName in sheets) {
+                    if (sName.toLowerCase().includes(keyword.toLowerCase())) {
+                        targetSheetName = sName;
+                        break;
+                    }
+                }
+
+                if (!targetSheetName) {
+                    // Coba cari sheet pertama jika tidak spesifik
+                    const keys = Object.keys(sheets);
+                    if (keys.length > 0) targetSheetName = keys[0];
+                }
+
+                if (!targetSheetName || !sheets[targetSheetName] || sheets[targetSheetName].length === 0) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Data Belum Tersedia',
+                        text: `Data untuk kategori ${keyword} belum memiliki entri penilaian.`,
+                        confirmButtonColor: '#1e40af'
+                    });
+                    return;
+                }
+
+                const rows = sheets[targetSheetName];
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(rows);
+                XLSX.utils.book_append_sheet(wb, ws, targetSheetName.substring(0, 31));
+
+                const filename = `SIPEKA_360_${keyword}_Aceh_Timur_${new Date().toISOString().slice(0,10)}.xlsx`;
+                XLSX.writeFile(wb, filename);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Unduhan Berhasil!',
+                    text: `File "${filename}" berhasil diunduh.`,
+                    confirmButtonColor: '#1e40af'
+                });
+
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Mengunduh',
+                    text: err.message,
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+        }
+    </script>
+</body>
+</html>

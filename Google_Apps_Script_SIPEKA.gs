@@ -37,9 +37,14 @@ function doGet(e) {
       return handleGetPegawai();
     }
 
-    // 2. Aksi: Ambil Pengaturan Sistem (Termasuk Periode Penilaian Aktif)
-    if (action === "get_config") {
+    // 2. Aksi: Ambil Pengaturan Sistem (Termasuk Periode Penilaian Aktif & Daftar Periode)
+    if (action === "get_config" || action === "get_periods") {
       return handleGetConfig();
+    }
+
+    // 3. Aksi: Ambil Semua Data Sheet Penilaian (Atasan, Bawahan, Rekan) untuk Unduh Admin
+    if (action === "get_all_penilaian_data") {
+      return handleGetAllPenilaianData();
     }
 
     return ContentService.createTextOutput(JSON.stringify({
@@ -65,29 +70,40 @@ function doPost(e) {
     }
 
     // 2. Aksi: Ambil / Simpan Pengaturan
-    if (action === "get_config") {
+    if (action === "get_config" || action === "get_periods") {
       return handleGetConfig();
     }
-    if (action === "save_config") {
+    if (action === "save_config" || action === "set_active_period") {
       return handleSaveConfig(params);
     }
+    if (action === "add_period") {
+      return handleAddPeriod(params);
+    }
+    if (action === "delete_period") {
+      return handleDeletePeriod(params);
+    }
 
-    // 2. Aksi: Kirim Kode OTP ke Email
+    // 3. Aksi: Ambil Semua Data Penilaian untuk Export/Download
+    if (action === "get_all_penilaian_data") {
+      return handleGetAllPenilaianData();
+    }
+
+    // 4. Aksi: Kirim Kode OTP ke Email
     if (action === "send_otp") {
       return handleSendOtp(params);
     }
 
-    // 3. Aksi: Registrasi Pengguna Baru
+    // 5. Aksi: Registrasi Pengguna Baru
     if (action === "register") {
       return handleRegisterUser(params);
     }
 
-    // 4. Aksi: Reset Password
+    // 6. Aksi: Reset Password
     if (action === "reset_password") {
       return handleResetPassword(params);
     }
 
-    // 5. Default: Simpan Formulir Penilaian (Atasan / Rekan / Bawahan)
+    // 7. Default: Simpan Formulir Penilaian (Atasan / Rekan / Bawahan)
     return handleSavePenilaian(params);
 
   } catch (error) {
@@ -207,17 +223,19 @@ function handleSaveConfig(params) {
 }
 
 /**
- * Helper: Ambil Objek Config dari Sheet 'Pengaturan' / ScriptProperties
+ * Helper: Ambil Objek Config & Daftar Periode dari Sheet 'Pengaturan' / 'Periode_List'
  */
 function getAppConfig() {
   let periodeAktif = "Tahun 2025";
-  let periodeList = ["Tahun 2025", "Tahun 2026", "Triwulan I 2025", "Triwulan II 2025", "Triwulan III 2025", "Triwulan IV 2025", "Semester I 2025", "Semester II 2025"];
+  let periodeList = [];
 
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    let sheet = ss.getSheetByName("Pengaturan") || ss.getSheetByName("Config");
-    if (sheet) {
-      const data = sheet.getDataRange().getValues();
+    
+    // 1. Ambil Periode Aktif dari Sheet 'Pengaturan'
+    let configSheet = ss.getSheetByName("Pengaturan") || ss.getSheetByName("Config");
+    if (configSheet) {
+      const data = configSheet.getDataRange().getValues();
       for (let i = 0; i < data.length; i++) {
         const key = String(data[i][0] || "").trim().toUpperCase();
         const val = String(data[i][1] || "").trim();
@@ -226,12 +244,209 @@ function getAppConfig() {
         }
       }
     }
-  } catch (e) {}
+
+    // 2. Ambil Daftar Periode dari Sheet 'Periode_List'
+    let periodSheet = ss.getSheetByName("Periode_List");
+    if (periodSheet) {
+      const pData = periodSheet.getDataRange().getValues();
+      for (let i = 1; i < pData.length; i++) {
+        const namaPeriode = String(pData[i][0] || "").trim();
+        const jenisPeriode = String(pData[i][1] || "Tahunan").trim();
+        const tglDibuat = pData[i][2] || "";
+        if (namaPeriode) {
+          periodeList.push({
+            nama: namaPeriode,
+            jenis: jenisPeriode,
+            created_at: tglDibuat,
+            is_active: namaPeriode === periodeAktif
+          });
+        }
+      }
+    }
+
+    // Fallback jika sheet Periode_List belum ada atau kosong
+    if (periodeList.length === 0) {
+      const defaultPeriods = [
+        { nama: "Tahun 2025", jenis: "Tahunan" },
+        { nama: "Tahun 2026", jenis: "Tahunan" },
+        { nama: "Januari 2025", jenis: "Bulanan" },
+        { nama: "Februari 2025", jenis: "Bulanan" },
+        { nama: "Maret 2025", jenis: "Bulanan" },
+        { nama: "Triwulan I 2025", jenis: "Triwulan" },
+        { nama: "Triwulan II 2025", jenis: "Triwulan" },
+        { nama: "Triwulan III 2025", jenis: "Triwulan" },
+        { nama: "Triwulan IV 2025", jenis: "Triwulan" },
+        { nama: "Semester I 2025", jenis: "Semester" },
+        { nama: "Semester II 2025", jenis: "Semester" }
+      ];
+      
+      // Buat dan inisialisasi sheet Periode_List
+      if (!periodSheet) {
+        periodSheet = ss.insertSheet("Periode_List");
+        periodSheet.appendRow(["Nama_Periode", "Jenis_Periode", "Tanggal_Dibuat"]);
+        defaultPeriods.forEach(p => {
+          periodSheet.appendRow([p.nama, p.jenis, new Date()]);
+        });
+      }
+
+      periodeList = defaultPeriods.map(p => ({
+        ...p,
+        created_at: new Date(),
+        is_active: p.nama === periodeAktif
+      }));
+    }
+
+  } catch (e) {
+    Logger.log("Error getAppConfig: " + e.toString());
+  }
 
   return {
     periode_aktif: periodeAktif,
     periode_list: periodeList
   };
+}
+
+/**
+ * Menambahkan Periode Baru ke Sheet 'Periode_List'
+ */
+function handleAddPeriod(params) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName("Periode_List");
+  if (!sheet) {
+    sheet = ss.insertSheet("Periode_List");
+    sheet.appendRow(["Nama_Periode", "Jenis_Periode", "Tanggal_Dibuat"]);
+  }
+
+  const nama = (params.nama_periode || params.nama || "").trim();
+  const jenis = (params.jenis_periode || params.jenis || "Tahunan").trim();
+
+  if (!nama) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: "Nama periode wajib diisi."
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // Cek duplikasi
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][0] || "").trim().toLowerCase() === nama.toLowerCase()) {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "error",
+        message: "Periode '" + nama + "' sudah ada dalam daftar."
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
+  sheet.appendRow([nama, jenis, new Date()]);
+
+  // Jika parameter set_active true, langsung aktifkan
+  if (params.set_active === "true" || params.set_active === true) {
+    handleSaveConfig({ periode_penilaian: nama });
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "success",
+    message: "Periode '" + nama + "' berhasil ditambahkan.",
+    config: getAppConfig()
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Menghapus Periode dari 'Periode_List' & Menghapus Semua Data Penilaian pada Periode Tersebut (Cascade Delete)
+ */
+function handleDeletePeriod(params) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const nama = (params.nama_periode || params.nama || "").trim();
+
+  if (!nama) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: "Nama periode yang akan dihapus tidak ditentukan."
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  let deletedFromList = false;
+  let periodSheet = ss.getSheetByName("Periode_List");
+  if (periodSheet) {
+    const data = periodSheet.getDataRange().getValues();
+    for (let i = data.length - 1; i >= 1; i--) {
+      if (String(data[i][0] || "").trim().toLowerCase() === nama.toLowerCase()) {
+        periodSheet.deleteRow(i + 1);
+        deletedFromList = true;
+      }
+    }
+  }
+
+  // Lakukan CASCADE DELETE di seluruh sheet penilaian (Atasan, Bawahan, Rekan, dsb)
+  let deletedAssessmentRows = 0;
+  const allSheets = ss.getSheets();
+
+  allSheets.forEach(sheet => {
+    const sheetName = sheet.getName().toLowerCase();
+    // Cari di sheet penilaian (misalnya: Atasan, Bawahan, Rekan, Form, atau Respon)
+    if (sheetName !== "data_pegawai" && sheetName !== "users" && sheetName !== "pengaturan" && sheetName !== "config" && sheetName !== "periode_list" && sheetName !== "log_otp") {
+      const values = sheet.getDataRange().getValues();
+      if (values.length > 1) {
+        // Cari kolom yang berisi nama periode
+        for (let r = values.length - 1; r >= 1; r--) {
+          let rowContainsPeriod = false;
+          for (let c = 0; c < values[r].length; c++) {
+            const cellVal = String(values[r][c] || "").trim().toLowerCase();
+            if (cellVal === nama.toLowerCase()) {
+              rowContainsPeriod = true;
+              break;
+            }
+          }
+          if (rowContainsPeriod) {
+            sheet.deleteRow(r + 1);
+            deletedAssessmentRows++;
+          }
+        }
+      }
+    }
+  });
+
+  // Jika periode yang dihapus sedang aktif, ubah periode aktif ke periode pertama yang tersedia
+  const currentConfig = getAppConfig();
+  if (currentConfig.periode_aktif.toLowerCase() === nama.toLowerCase()) {
+    const newActive = currentConfig.periode_list.length > 0 ? currentConfig.periode_list[0].nama : "Tahun 2025";
+    handleSaveConfig({ periode_penilaian: newActive });
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "success",
+    message: "Periode '" + nama + "' dan " + deletedAssessmentRows + " data penilaian terkait berhasil dihapus.",
+    deleted_assessments_count: deletedAssessmentRows,
+    config: getAppConfig()
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Mengambil Semua Data Penilaian dari Sheet (Atasan, Bawahan, Rekan) untuk Didownload oleh Admin
+ */
+function handleGetAllPenilaianData() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheets = ss.getSheets();
+  const result = {};
+
+  sheets.forEach(sheet => {
+    const name = sheet.getName();
+    // Exclude technical sheets if desired, but include all assessment sheets
+    const dataRange = sheet.getDataRange();
+    const values = dataRange.getValues();
+    if (values && values.length > 0) {
+      result[name] = values;
+    } else {
+      result[name] = [];
+    }
+  });
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "success",
+    spreadsheet_name: ss.getName(),
+    sheets: result
+  })).setMimeType(ContentService.MimeType.JSON);
 }
 
 /**
