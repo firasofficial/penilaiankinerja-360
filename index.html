@@ -77,6 +77,16 @@
                 const ADMIN_NIP = '200210242025041002';
                 const isAdmin = String(user.nip).trim() === ADMIN_NIP;
 
+                // Restriction and Banner logic based on Jabatan
+                const jabatan = user.jabatan || '';
+                const jabLower = jabatan.toLowerCase();
+                
+                // Special check for Highest Executive / Kepala Daerah (Bupati / Wakil Bupati / dsb)
+                const isBupatiOrTopLeader = jabLower.includes('bupati') || 
+                                           jabLower.includes('wakil bupati') || 
+                                           jabLower.includes('penjabat bupati') || 
+                                           jabLower.includes('pemberi tugas tertinggi');
+
                 if (badge && profileName && profileNip) {
                     profileName.textContent = user.nama;
                     const idPrefix = String(user.nip || '').trim().length === 16 ? 'NIK. ' : 'NIP. ';
@@ -95,20 +105,19 @@
                         if (avatarCircle) {
                             avatarCircle.innerHTML = '<i class="fas fa-user-shield"></i>';
                         }
+                    } else if (isBupatiOrTopLeader) {
+                        if (menuUserRole) {
+                            menuUserRole.innerHTML = '<i class="fas fa-award"></i> Kepala Daerah / Pejabat Negara';
+                            menuUserRole.style.background = '#fef3c7';
+                            menuUserRole.style.color = '#92400e';
+                        }
+                        if (avatarCircle) {
+                            avatarCircle.innerHTML = '<i class="fas fa-user-tie"></i>';
+                        }
                     }
 
                     badge.style.display = 'flex';
                 }
-
-                // Restriction and Banner logic based on Jabatan
-                const jabatan = user.jabatan || '';
-                const jabLower = jabatan.toLowerCase();
-                
-                // Special check for Highest Executive / Kepala Daerah (Bupati / Wakil Bupati / dsb)
-                const isBupatiOrTopLeader = jabLower.includes('bupati') || 
-                                           jabLower.includes('wakil bupati') || 
-                                           jabLower.includes('penjabat bupati') || 
-                                           jabLower.includes('pemberi tugas tertinggi');
 
                 // Keywords for Condition 1 (Structural / Leaders who have both Boss and Subordinates)
                 const keywordsKondisi1 = [
@@ -150,12 +159,12 @@
                 const cardBawahan = document.getElementById('roleBawahan');
                 
                 if (banner && txtJabatan && txtCondition && badgeCondition) {
-                    txtJabatan.textContent = jabatan || 'Pegawai ASN';
+                    txtJabatan.textContent = jabatan || (isBupatiOrTopLeader ? 'Bupati Aceh Timur' : 'Pegawai ASN');
                     banner.style.display = 'flex';
                     
                     if (isBupatiOrTopLeader) {
                         txtCondition.textContent = 'Sebagai Pimpinan Tertinggi Daerah (Bupati/Wakil Bupati), Anda hanya melakukan penilaian terhadap Pejabat Bawahan langsung (Kepala Dinas, Kepala Badan, Camat, dsb).';
-                        badgeCondition.textContent = 'Pejabat Pembina Kepegawaian / Pimpinan Tertinggi: Bawahan';
+                        badgeCondition.textContent = 'Pejabat Pembina Kepegawaian / Pimpinan Tertinggi';
                         badgeCondition.style.background = 'rgba(245, 158, 11, 0.15)';
                         badgeCondition.style.color = '#b45309';
                         
