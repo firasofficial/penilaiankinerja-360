@@ -104,7 +104,13 @@
                 const jabatan = user.jabatan || '';
                 const jabLower = jabatan.toLowerCase();
                 
-                // Keywords for Condition 1 (Structural / Leaders)
+                // Special check for Highest Executive / Kepala Daerah (Bupati / Wakil Bupati / dsb)
+                const isBupatiOrTopLeader = jabLower.includes('bupati') || 
+                                           jabLower.includes('wakil bupati') || 
+                                           jabLower.includes('penjabat bupati') || 
+                                           jabLower.includes('pemberi tugas tertinggi');
+
+                // Keywords for Condition 1 (Structural / Leaders who have both Boss and Subordinates)
                 const keywordsKondisi1 = [
                     'kabid',
                     'kepala bidang',
@@ -124,16 +130,13 @@
                     'direktur',
                     'kepala tata usaha',
                     'kepala unit',
-                    'bupati',
-                    'wakil bupati',
-                    'penjabat',
                     'pimpinan',
                     'kabag',
                     'kepala bagian',
                     'kepala sekolah'
                 ];
                 
-                const isKondisi1 = keywordsKondisi1.some(keyword => jabLower.includes(keyword));
+                const isKondisi1 = !isBupatiOrTopLeader && keywordsKondisi1.some(keyword => jabLower.includes(keyword));
                 
                 // Elements
                 const banner = document.getElementById('detectedJabatanBanner');
@@ -142,14 +145,28 @@
                 const badgeCondition = document.getElementById('detectedConditionBadge');
                 const grid = document.getElementById('roleGrid');
                 
+                const cardAtasan = document.getElementById('roleAtasan');
                 const cardRekan = document.getElementById('roleRekan');
                 const cardBawahan = document.getElementById('roleBawahan');
                 
                 if (banner && txtJabatan && txtCondition && badgeCondition) {
-                    txtJabatan.textContent = jabatan || 'Staf / Fungsional';
+                    txtJabatan.textContent = jabatan || 'Pegawai ASN';
                     banner.style.display = 'flex';
                     
-                    if (isKondisi1) {
+                    if (isBupatiOrTopLeader) {
+                        txtCondition.textContent = 'Sebagai Pimpinan Tertinggi Daerah (Bupati/Wakil Bupati), Anda hanya melakukan penilaian terhadap Pejabat Bawahan langsung (Kepala Dinas, Kepala Badan, Camat, dsb).';
+                        badgeCondition.textContent = 'Pejabat Pembina Kepegawaian / Pimpinan Tertinggi: Bawahan';
+                        badgeCondition.style.background = 'rgba(245, 158, 11, 0.15)';
+                        badgeCondition.style.color = '#b45309';
+                        
+                        // Hide Atasan & Rekan Sejawat, only show Bawahan
+                        if (cardAtasan) cardAtasan.style.display = 'none';
+                        if (cardRekan) cardRekan.style.display = 'none';
+                        if (grid) {
+                            grid.classList.remove('two-roles');
+                            grid.classList.add('one-role');
+                        }
+                    } else if (isKondisi1) {
                         txtCondition.textContent = 'Berdasarkan jabatan struktural/pimpinan Anda, Anda diperbolehkan melakukan penilaian untuk 2 peran berikut.';
                         badgeCondition.textContent = 'Kondisi 1: Atasan & Bawahan';
                         badgeCondition.style.background = 'rgba(37, 99, 235, 0.1)';
@@ -157,6 +174,9 @@
                         
                         // Hide Rekan Sejawat
                         if (cardRekan) cardRekan.style.display = 'none';
+                        if (grid) {
+                            grid.classList.add('two-roles');
+                        }
                     } else {
                         txtCondition.textContent = 'Berdasarkan jabatan staf/fungsional Anda, Anda diperbolehkan melakukan penilaian untuk 2 peran berikut.';
                         badgeCondition.textContent = 'Kondisi 2: Atasan & Rekan Sejawat';
@@ -165,12 +185,10 @@
                         
                         // Hide Bawahan
                         if (cardBawahan) cardBawahan.style.display = 'none';
+                        if (grid) {
+                            grid.classList.add('two-roles');
+                        }
                     }
-                }
-                
-                // Add the class to role-grid to make it center-balanced in 2 columns
-                if (grid) {
-                    grid.classList.add('two-roles');
                 }
             });
         })();
@@ -677,6 +695,13 @@
         .role-grid.two-roles {
             grid-template-columns: repeat(2, 1fr);
             max-width: 720px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .role-grid.one-role {
+            grid-template-columns: 1fr;
+            max-width: 420px;
             margin: 0 auto;
             width: 100%;
         }
