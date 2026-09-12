@@ -2,6 +2,19 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Penilaian Bawahan - SIPEKA 360 | Kab. Aceh Timur</title>
+    <link rel="icon" type="image/png" href="Lambang_Kabupaten_Aceh_Timur.png">
+    
+    <!-- FontAwesome & SweetAlert2 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Tambahan Library jQuery & Select2 untuk Fitur Pencarian -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
         (function () {
             'use strict';
@@ -48,20 +61,21 @@
             ];
             const isKondisi1 = keywordsKondisi1.some(keyword => jabLower.includes(keyword));
             if (!isKondisi1) {
-                alert('Jabatan Anda (' + jabatan + ') tidak diperbolehkan memilih peran Bawahan.');
-                window.location.replace('index.html');
-                return;
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Akses Tidak Diizinkan',
+                        text: 'Jabatan Anda (' + jabatan + ') tidak diperbolehkan memilih peran Bawahan.',
+                        confirmButtonColor: '#1e40af',
+                        confirmButtonText: 'Kembali ke Beranda',
+                        allowOutsideClick: false
+                    }).then(() => {
+                        window.location.replace('index.html');
+                    });
+                });
             }
         })();
     </script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Penilaian Bawahan - SIPEKA 360 | Kab. Aceh Timur</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Tambahan Library jQuery & Select2 untuk Fitur Pencarian -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <style>
         :root {
@@ -1031,22 +1045,40 @@
                 mode: 'no-cors' 
             })
             .then(response => {
-                alert('Berhasil! Data Penilaian telah tersimpan ke dalam tab Atasan.');
-                
-                // Reset form dan Select2
                 form.reset(); 
                 $('#satuanKerja').val(null).trigger('change'); 
-                
                 nipInput.style.borderColor = "var(--border-color)";
                 btnSubmit.innerHTML = originalBtnText; 
                 btnSubmit.disabled = false;
                 window.scrollTo(0, 0);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Penilaian Berhasil Dikirim!',
+                    text: 'Data Penilaian Bawahan telah berhasil disimpan ke dalam sistem.',
+                    confirmButtonColor: '#1e40af',
+                    confirmButtonText: '<i class="fas fa-check"></i> Selesai',
+                    showCancelButton: true,
+                    cancelButtonColor: '#64748b',
+                    cancelButtonText: '<i class="fas fa-home"></i> Kembali ke Beranda'
+                }).then((result) => {
+                    if (result.dismiss === Swal.DismissReason.cancel) {
+                        window.location.href = 'index.html';
+                    }
+                });
             })
             .catch(error => {
-                alert('Gagal mengirim data. Silakan coba lagi.');
                 console.error('Error!', error.message);
                 btnSubmit.innerHTML = originalBtnText;
                 btnSubmit.disabled = false;
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Mengirim Data',
+                    text: 'Terjadi kendala saat mengirim data. Pastikan koneksi internet stabil dan silakan coba lagi.',
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'Coba Lagi'
+                });
             });
         });
     </script>

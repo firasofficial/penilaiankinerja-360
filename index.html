@@ -3,6 +3,17 @@
 <!-- SIPEKA 360 v1.1.0 -->
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIPEKA 360° - Pemerintah Kabupaten Aceh Timur</title>
+    <link rel="icon" type="image/png" href="Lambang_Kabupaten_Aceh_Timur.png">
+    
+    <!-- FontAwesome & SweetAlert2 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     <script>
         (function () {
             'use strict';
@@ -17,16 +28,27 @@
                 return;
             }
 
-            // Expose global confirmLogout function
+            // Expose global confirmLogout function using SweetAlert2
             window.confirmLogout = function (event) {
                 if (event) {
                     event.preventDefault();
                     event.stopPropagation();
                 }
-                if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
-                    sessionStorage.removeItem('penilaian360_user');
-                    window.location.replace('login.html');
-                }
+                Swal.fire({
+                    title: 'Konfirmasi Keluar',
+                    text: 'Apakah Anda yakin ingin keluar dari sistem SIPEKA 360?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#64748b',
+                    confirmButtonText: '<i class="fas fa-sign-out-alt"></i> Ya, Keluar',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        sessionStorage.removeItem('penilaian360_user');
+                        window.location.replace('login.html');
+                    }
+                });
             };
 
             document.addEventListener('DOMContentLoaded', function () {
@@ -115,12 +137,6 @@
             });
         })();
     </script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIPEKA 360° - Pemerintah Kabupaten Aceh Timur</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-blue: #0f3e8b;
