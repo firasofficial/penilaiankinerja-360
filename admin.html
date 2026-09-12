@@ -1135,6 +1135,22 @@
             }
         }
 
+        // Helper: Bersihkan dan Format Nama Periode (Tangani jika tanggal dikonversi otomatis oleh Google Sheets)
+        function formatCleanPeriodName(val) {
+            if (!val) return '';
+            const str = String(val).trim();
+
+            // Jika berupa string tanggal GMT / Waktu Indochina / ISO Date (misal: Tue Sep 01 2026...)
+            if (/^[A-Z][a-z]{2}\s+[A-Z][a-z]{2}\s+\d{1,2}\s+\d{4}/.test(str) || /^\d{4}-\d{2}-\d{2}/.test(str)) {
+                const d = new Date(str);
+                if (!isNaN(d.getTime())) {
+                    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                    return `${months[d.getMonth()]} ${d.getFullYear()}`;
+                }
+            }
+            return str;
+        }
+
         // 1. Ambil Konfigurasi Periode dari Backend (dengan anti-cache timestamp)
         function fetchConfigData() {
             const activeText = document.getElementById('currentActivePeriodText');
@@ -1147,6 +1163,15 @@
                 .then(res => {
                     if (res && res.config) {
                         currentConfig = res.config;
+                        if (currentConfig.periode_aktif) {
+                            currentConfig.periode_aktif = formatCleanPeriodName(currentConfig.periode_aktif);
+                        }
+                        if (Array.isArray(currentConfig.periode_list)) {
+                            currentConfig.periode_list = currentConfig.periode_list.map(p => ({
+                                ...p,
+                                nama: formatCleanPeriodName(p.nama)
+                            }));
+                        }
                         try {
                             localStorage.setItem('sipeka_full_config', JSON.stringify(currentConfig));
                             if (currentConfig.periode_aktif) {
@@ -1158,15 +1183,17 @@
                 })
                 .catch(err => {
                     console.warn('Gagal memuat config:', err);
-                    activeText.textContent = currentConfig.periode_aktif;
+                    activeText.textContent = formatCleanPeriodName(currentConfig.periode_aktif);
                 });
         }
 
         // 2. Render Tampilan Periode
         function renderPeriodData() {
-            document.getElementById('currentActivePeriodText').textContent = currentConfig.periode_aktif;
+            const cleanActive = formatCleanPeriodName(currentConfig.periode_aktif);
+            currentConfig.periode_aktif = cleanActive;
+            document.getElementById('currentActivePeriodText').textContent = cleanActive;
             try {
-                localStorage.setItem('sipeka_periode_aktif', currentConfig.periode_aktif);
+                localStorage.setItem('sipeka_periode_aktif', cleanActive);
                 localStorage.setItem('sipeka_full_config', JSON.stringify(currentConfig));
             } catch(e) {}
 
@@ -1184,10 +1211,11 @@
 
             let html = '';
             currentConfig.periode_list.forEach(p => {
-                const isActive = p.nama.trim().toLowerCase() === currentConfig.periode_aktif.trim().toLowerCase();
+                const namaBersih = formatCleanPeriodName(p.nama);
+                const isActive = namaBersih.toLowerCase() === cleanActive.toLowerCase();
                 html += `
                     <tr>
-                        <td><strong>${p.nama}</strong></td>
+                        <td><strong>${namaBersih}</strong></td>
                         <td><span class="badge-jenis">${p.jenis || 'Tahunan'}</span></td>
                         <td>
                             ${isActive 
@@ -1285,6 +1313,15 @@
                     inputEl.value = '';
                     if (res.config) {
                         currentConfig = res.config;
+                        if (currentConfig.periode_aktif) {
+                            currentConfig.periode_aktif = formatCleanPeriodName(currentConfig.periode_aktif);
+                        }
+                        if (Array.isArray(currentConfig.periode_list)) {
+                            currentConfig.periode_list = currentConfig.periode_list.map(p => ({
+                                ...p,
+                                nama: formatCleanPeriodName(p.nama)
+                            }));
+                        }
                         renderPeriodData();
                     } else {
                         fetchConfigData();
@@ -1432,6 +1469,15 @@
                             cachedAllSheetsData = null;
                             if (res.config) {
                                 currentConfig = res.config;
+                                if (currentConfig.periode_aktif) {
+                                    currentConfig.periode_aktif = formatCleanPeriodName(currentConfig.periode_aktif);
+                                }
+                                if (Array.isArray(currentConfig.periode_list)) {
+                                    currentConfig.periode_list = currentConfig.periode_list.map(p => ({
+                                        ...p,
+                                        nama: formatCleanPeriodName(p.nama)
+                                    }));
+                                }
                             } else {
                                 if (currentConfig.periode_aktif.toLowerCase() === oldNama.toLowerCase()) {
                                     currentConfig.periode_aktif = newNama;
@@ -1478,8 +1524,7 @@
                     <div style="text-align: left; font-size: 0.88rem; color: #475569;">
                         <p style="margin-bottom: 8px;">Anda akan menghapus periode: <strong>"${namaPeriode}"</strong>.</p>
                         <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 10px 12px; border-radius: 6px; color: #991b1b;">
-                            <strong><i class="fas fa-triangle-exclamation"></i> PERINGATAN:</strong><br>
-                            Semua data penilaian pegawai (Atasan, Bawahan, Rekan Sejawat) yang dibuat pada periode <strong>"${namaPeriode}"</strong> akan <strong>DIHAPUS PERMANEN</strong> dari database.
+                            <i class="fas fa-exclamation-triangle"></i> <strong>Perhatian:</strong> Seluruh riwayat penilaian (Atasan, Rekan Sejawat, dan Bawahan) yang terdaftar pada periode ini akan <strong>dihapus permanen</strong>.
                         </div>
                     </div>
                 `,
@@ -1487,13 +1532,13 @@
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
                 cancelButtonColor: '#64748b',
-                confirmButtonText: '<i class="fas fa-trash-alt"></i> Ya, Hapus Semua',
+                confirmButtonText: 'Ya, Hapus Permanen',
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
-                        title: 'Menghapus Data Penilaian...',
-                        text: 'Proses ini mungkin memakan waktu beberapa detik.',
+                        title: 'Menghapus Data...',
+                        text: 'Sedang menghapus periode beserta seluruh data penilaiannya.',
                         allowOutsideClick: false,
                         didOpen: () => { Swal.showLoading(); }
                     });
@@ -1502,13 +1547,27 @@
                     formData.append('action', 'delete_period');
                     formData.append('nama_periode', namaPeriode);
 
-                    fetch(scriptURL, { method: 'POST', body: formData })
-                        .then(r => r.json())
-                        .then(res => {
-                            if (res.status === 'success') {
-                                cachedAllSheetsData = null;
-                                if (res.config) currentConfig = res.config;
-                                renderPeriodData();
+                    fetch(scriptURL, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.status === 'success') {
+                            cachedAllSheetsData = null;
+                            if (res.config) {
+                                currentConfig = res.config;
+                                if (currentConfig.periode_aktif) {
+                                    currentConfig.periode_aktif = formatCleanPeriodName(currentConfig.periode_aktif);
+                                }
+                                if (Array.isArray(currentConfig.periode_list)) {
+                                    currentConfig.periode_list = currentConfig.periode_list.map(p => ({
+                                        ...p,
+                                        nama: formatCleanPeriodName(p.nama)
+                                    }));
+                                }
+                            }
+                            renderPeriodData();
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Berhasil Dihapus!',

@@ -810,10 +810,25 @@
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxBY9zpJEDI-tY1ImE-YVjEInRJMSrIIEtZHNs-EbiRCpbk9QmJa1Da1Ooabs7MgirP/exec';
         let dataPegawai = [];
 
+        // Helper: Bersihkan dan Format Nama Periode
+        function formatCleanPeriodName(val) {
+            if (!val) return '';
+            const str = String(val).trim();
+            if (/^[A-Z][a-z]{2}\s+[A-Z][a-z]{2}\s+\d{1,2}\s+\d{4}/.test(str) || /^\d{4}-\d{2}-\d{2}/.test(str)) {
+                const d = new Date(str);
+                if (!isNaN(d.getTime())) {
+                    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                    return `${months[d.getMonth()]} ${d.getFullYear()}`;
+                }
+            }
+            return str;
+        }
+
         function applyPeriodeAktif(periode) {
             if (!periode) return;
+            const clean = formatCleanPeriodName(periode);
             const el = document.getElementById('periodePenilaian');
-            if (el) el.value = periode;
+            if (el) el.value = clean;
         }
 
         // Terapkan periode aktif tersimpan dari cache segera jika ada
@@ -842,8 +857,9 @@
                         localStorage.setItem(CACHE_KEY_PEGAWAI, JSON.stringify(dataPegawai));
                     }
                     if (res.config && res.config.periode_aktif) {
-                        localStorage.setItem(CACHE_KEY_PERIODE, res.config.periode_aktif);
-                        applyPeriodeAktif(res.config.periode_aktif);
+                        const cleanPeriode = formatCleanPeriodName(res.config.periode_aktif);
+                        localStorage.setItem(CACHE_KEY_PERIODE, cleanPeriode);
+                        applyPeriodeAktif(cleanPeriode);
                     }
                 }
             })
