@@ -757,31 +757,86 @@ function handleResetPassword(params) {
 }
 
 /**
- * Menyimpan data formulir penilaian umum (Atasan / Bawahan / Rekan)
+ * Menyimpan data formulir penilaian ke Sheet yang Sesuai (Atasan / Bawahan / Rekan Sejawat)
  */
 function handleSavePenilaian(params) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = ss.getActiveSheet();
+  
+  // Tentukan Sheet Target berdasarkan parameter jenis_penilai / peran_penilai
+  const jenisPenilai = (params.jenis_penilai || "").toLowerCase();
+  const peranPenilai = String(params.peran_penilai || "");
+  let targetSheetName = "Atasan"; // default
+
+  if (jenisPenilai.includes("bawahan") || peranPenilai === "10") {
+    // Form Atasan: Dinilai oleh Bawahan
+    targetSheetName = findSheetNameByKeywords(ss, ["atasan"]);
+  } else if (jenisPenilai.includes("atasan") || peranPenilai === "30") {
+    // Form Bawahan: Dinilai oleh Atasan
+    targetSheetName = findSheetNameByKeywords(ss, ["bawahan"]);
+  } else if (jenisPenilai.includes("rekan") || jenisPenilai.includes("sejawat") || peranPenilai === "20") {
+    // Form Rekan Sejawat
+    targetSheetName = findSheetNameByKeywords(ss, ["rekan", "sejawat"]);
+  }
+
+  let sheet = ss.getSheetByName(targetSheetName);
+  if (!sheet) {
+    sheet = ss.insertSheet(targetSheetName);
+    sheet.appendRow([
+      "Timestamp", "Satuan Kerja", "NIP Dinilai", "Nama Dinilai", "Pangkat", 
+      "Jabatan", "Jenis Pegawai", "Pelayanan (Skor)", "Akuntabel (Skor)", 
+      "Kompeten (Skor)", "Harmonis (Skor)", "Loyal (Skor)", "Adaptif (Skor)", 
+      "Kolaboratif (Skor)", "Periode Penilaian", "Peran Penilai", "NIP Penilai"
+    ]);
+  }
 
   const timestamp = new Date();
-  const rowData = [timestamp];
-
-  for (let key in params) {
-    if (key !== "action") {
-      let val = params[key];
-      if (key.toLowerCase().includes("nip")) {
-        val = "'" + val;
-      }
-      rowData.push(val);
-    }
-  }
+  const rowData = [
+    timestamp,
+    params.satuan_kerja || "",
+    "'" + (params.nip_bawahan || params.nip || ""),
+    params.nama_bawahan || params.nama || "",
+    params.pangkat || "",
+    params.jabatan || "",
+    params.jenis_pegawai || "",
+    params.skor_pelayanan || params.pelayanan || "",
+    params.skor_akuntabel || params.akuntabel || "",
+    params.skor_kompeten || params.kompeten || "",
+    params.skor_harmonis || params.harmonis || "",
+    params.skor_loyal || params.loyal || "",
+    params.skor_adaptif || params.adaptif || "",
+    params.skor_kolaboratif || params.kolaboratif || "",
+    params.periode_penilaian || "",
+    params.peran_penilai || "",
+    "'" + (params.nip_penilai || params.nip_atasan_penilai || "")
+  ];
 
   sheet.appendRow(rowData);
 
   return ContentService.createTextOutput(JSON.stringify({
     status: "success",
-    message: "Data penilaian berhasil disimpan."
+    message: "Data penilaian berhasil disimpan ke sheet '" + sheet.getName() + "'.",
+    sheet_name: sheet.getName()
   })).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Helper: Mencari nama sheet yang cocok dengan keywords
+ */
+function findSheetNameByKeywords(ss, keywords) {
+  const sheets = ss.getSheets();
+  for (let i = 0; i < sheets.length; i++) {
+    const sName = sheets[i].getName();
+    const lower = sName.toLowerCase();
+    for (let k = 0; k < keywords.length; k++) {
+      if (lower.includes(keywords[k])) {
+        return sName;
+      }
+    }
+  }
+  // Jika belum ada, gunakan nama standar
+  if (keywords.includes("atasan")) return "Atasan";
+  if (keywords.includes("bawahan")) return "Bawahan";
+  return "Rekan Sejawat";
 }
 
 /**
