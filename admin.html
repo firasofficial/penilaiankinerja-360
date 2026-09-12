@@ -428,6 +428,69 @@
             background: #059669;
         }
 
+        /* --- Section Tabs Navigation --- */
+        .admin-nav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+            background: #ffffff;
+            padding: 8px;
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn i {
+            font-size: 1rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-blue);
+            background: #f1f5f9;
+        }
+
+        .tab-btn.active {
+            background: var(--secondary-blue);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .tab-btn.active i {
+            color: #ffffff;
+        }
+
+        .admin-section {
+            display: none;
+            animation: fadeInTab 0.3s ease;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        @keyframes fadeInTab {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* --- Panel Card Layout --- */
         .grid-panels {
             display: grid;
@@ -820,10 +883,10 @@
                             <p class="name" id="menuAdminName">Admin SIPEKA</p>
                             <span class="role-tag"><i class="fas fa-shield-alt"></i> Super Administrator</span>
                         </div>
-                        <button class="dropdown-item" onclick="scrollToSection('sectionManajemenPeriode')">
+                        <button class="dropdown-item" onclick="switchSection('sectionManajemenPeriode')">
                             <i class="fas fa-calendar-check"></i> Setting Periode Penilaian
                         </button>
-                        <button class="dropdown-item" onclick="downloadAllSipekaData()">
+                        <button class="dropdown-item" onclick="switchSection('sectionUnduhData')">
                             <i class="fas fa-file-excel"></i> Unduh Data SIPEKA 360
                         </button>
                         <div class="dropdown-divider"></div>
@@ -844,145 +907,162 @@
                 <p>Kelola periode penilaian aktif, tambah/hapus siklus penilaian, dan unduh rekapan penilaian kepegawaian.</p>
             </div>
             <div class="hero-actions">
-                <button class="btn-action-hero btn-hero-green" onclick="downloadAllSipekaData()">
-                    <i class="fas fa-cloud-arrow-down"></i> Unduh Semua Sheet SIPEKA (.xlsx)
+                <button class="btn-action-hero" onclick="switchSection('sectionManajemenPeriode')">
+                    <i class="fas fa-calendar-alt"></i> Setting Periode
+                </button>
+                <button class="btn-action-hero btn-hero-green" onclick="switchSection('sectionUnduhData')">
+                    <i class="fas fa-file-arrow-down"></i> Unduh Data SIPEKA 360
                 </button>
             </div>
         </div>
 
-        <!-- Section: Manajemen Periode Penilaian -->
-        <div class="grid-panels" id="sectionManajemenPeriode">
-            <!-- Panel 1: Tambah Periode Penilaian -->
-            <div class="panel-card">
-                <div class="panel-header">
-                    <h3><i class="fas fa-plus-circle"></i> Tambah Periode Penilaian</h3>
-                </div>
-                <div class="panel-body">
-                    <div class="active-period-box">
-                        <div class="active-period-info">
-                            <div class="label">Periode Penilaian Aktif Saat Ini</div>
-                            <div class="value">
-                                <span id="currentActivePeriodText">Memuat...</span>
-                                <span class="badge-live"><i class="fas fa-circle-dot"></i> AKTIF</span>
+        <!-- Section Tabs Navigation -->
+        <div class="admin-nav-tabs">
+            <button class="tab-btn active" id="tabBtnPeriode" onclick="switchSection('sectionManajemenPeriode')">
+                <i class="fas fa-calendar-check"></i> Manajemen Periode Penilaian
+            </button>
+            <button class="tab-btn" id="tabBtnUnduh" onclick="switchSection('sectionUnduhData')">
+                <i class="fas fa-file-excel"></i> Unduh Data SIPEKA 360°
+            </button>
+        </div>
+
+        <!-- Section 1: Manajemen Periode Penilaian (Setting) -->
+        <div class="admin-section active" id="sectionManajemenPeriode">
+            <div class="grid-panels">
+                <!-- Panel 1: Tambah Periode Penilaian -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3><i class="fas fa-plus-circle"></i> Tambah Periode Penilaian</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="active-period-box">
+                            <div class="active-period-info">
+                                <div class="label">Periode Penilaian Aktif Saat Ini</div>
+                                <div class="value">
+                                    <span id="currentActivePeriodText">Memuat...</span>
+                                    <span class="badge-live"><i class="fas fa-circle-dot"></i> AKTIF</span>
+                                </div>
                             </div>
                         </div>
+
+                        <form id="formAddPeriod" onsubmit="submitAddPeriod(event)">
+                            <div class="form-group">
+                                <label for="inputJenisPeriode">Jenis Periode Penilaian</label>
+                                <select id="inputJenisPeriode" class="form-select" onchange="handleJenisPeriodeChange()">
+                                    <option value="Tahunan" selected>Tahunan (Contoh: Tahun 2025, Tahun 2026)</option>
+                                    <option value="Bulanan">Bulanan (Contoh: Januari 2025, Februari 2025)</option>
+                                    <option value="Triwulan">Triwulan (Contoh: Triwulan I 2025)</option>
+                                    <option value="Semester">Semester (Contoh: Semester I 2025)</option>
+                                    <option value="Kustom">Kustom / Lainnya</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="inputNamaPeriode">Nama Periode</label>
+                                <input type="text" id="inputNamaPeriode" class="form-control" placeholder="Contoh: Tahun 2026" required autocomplete="off">
+                                <small style="color: #64748b; font-size: 0.74rem; display: block; margin-top: 4px;">
+                                    Nama periode ini yang akan otomatis terkunci di form penilaian pegawai.
+                                </small>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem;">
+                                    <input type="checkbox" id="checkAutoActive" checked style="width: 16px; height: 16px; accent-color: var(--secondary-blue);">
+                                    Langsung jadikan sebagai Periode Aktif
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn-primary" id="btnSubmitPeriod">
+                                <i class="fas fa-save"></i> Simpan Periode Baru
+                            </button>
+                        </form>
                     </div>
+                </div>
 
-                    <form id="formAddPeriod" onsubmit="submitAddPeriod(event)">
-                        <div class="form-group">
-                            <label for="inputJenisPeriode">Jenis Periode Penilaian</label>
-                            <select id="inputJenisPeriode" class="form-select" onchange="handleJenisPeriodeChange()">
-                                <option value="Tahunan" selected>Tahunan (Contoh: Tahun 2025, Tahun 2026)</option>
-                                <option value="Bulanan">Bulanan (Contoh: Januari 2025, Februari 2025)</option>
-                                <option value="Triwulan">Triwulan (Contoh: Triwulan I 2025)</option>
-                                <option value="Semester">Semester (Contoh: Semester I 2025)</option>
-                                <option value="Kustom">Kustom / Lainnya</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="inputNamaPeriode">Nama Periode</label>
-                            <input type="text" id="inputNamaPeriode" class="form-control" placeholder="Contoh: Tahun 2026" required autocomplete="off">
-                            <small style="color: #64748b; font-size: 0.74rem; display: block; margin-top: 4px;">
-                                Nama periode ini yang akan otomatis terkunci di form penilaian pegawai.
-                            </small>
-                        </div>
-
-                        <div class="form-group" style="margin-bottom: 20px;">
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem;">
-                                <input type="checkbox" id="checkAutoActive" checked style="width: 16px; height: 16px; accent-color: var(--secondary-blue);">
-                                Langsung jadikan sebagai Periode Aktif
-                            </label>
-                        </div>
-
-                        <button type="submit" class="btn-primary" id="btnSubmitPeriod">
-                            <i class="fas fa-save"></i> Simpan Periode Baru
+                <!-- Panel 2: Daftar & Pengaturan Periode -->
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3><i class="fas fa-list-check"></i> Daftar Periode Penilaian</h3>
+                        <button class="btn-table-action btn-set-active" onclick="fetchConfigData()" title="Muat Ulang Data">
+                            <i class="fas fa-sync-alt"></i> Refresh
                         </button>
-                    </form>
+                    </div>
+                    <div class="panel-body">
+                        <p style="font-size: 0.8rem; color: #64748b; margin-top: 0; margin-bottom: 12px;">
+                            Pilih periode yang ingin diaktifkan di form, atau hapus periode lama.
+                        </p>
+
+                        <div class="table-responsive">
+                            <table class="table-periods">
+                                <thead>
+                                    <tr>
+                                        <th>Nama Periode</th>
+                                        <th>Jenis</th>
+                                        <th>Status</th>
+                                        <th style="text-align: right;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="periodTableBody">
+                                    <tr>
+                                        <td colspan="4" style="text-align: center; color: #94a3b8; padding: 20px;">
+                                            <i class="fas fa-spinner fa-spin"></i> Memuat daftar periode...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Panel 2: Daftar & Pengaturan Periode -->
-            <div class="panel-card">
+        <!-- Section 2: Unduh Data SIPEKA 360 -->
+        <div class="admin-section" id="sectionUnduhData">
+            <div class="panel-card" style="margin-bottom: 30px;">
                 <div class="panel-header">
-                    <h3><i class="fas fa-list-check"></i> Daftar Periode Penilaian</h3>
-                    <button class="btn-table-action btn-set-active" onclick="fetchConfigData()" title="Muat Ulang Data">
-                        <i class="fas fa-sync-alt"></i> Refresh
+                    <h3><i class="fas fa-download"></i> Unduh Data SIPEKA 360° (Penilaian Atasan, Bawahan & Rekan Sejawat)</h3>
+                    <button class="btn-action-hero btn-hero-green" style="padding: 6px 14px; font-size: 0.8rem;" onclick="downloadAllSipekaData()">
+                        <i class="fas fa-file-excel"></i> Unduh Semua Sheet (.xlsx)
                     </button>
                 </div>
                 <div class="panel-body">
-                    <p style="font-size: 0.8rem; color: #64748b; margin-top: 0; margin-bottom: 12px;">
-                        Pilih periode yang ingin diaktifkan di form, atau hapus periode lama.
+                    <p style="font-size: 0.84rem; color: #475569; margin-top: 0; margin-bottom: 16px;">
+                        Download database penilaian pegawai yang telah terekam di Google Sheets. Anda dapat mengunduh seluruh lembar kerja (Workbook) sekaligus dalam format <strong>Excel (.xlsx)</strong> atau per tab.
                     </p>
 
-                    <div class="table-responsive">
-                        <table class="table-periods">
-                            <thead>
-                                <tr>
-                                    <th>Nama Periode</th>
-                                    <th>Jenis</th>
-                                    <th>Status</th>
-                                    <th style="text-align: right;">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="periodTableBody">
-                                <tr>
-                                    <td colspan="4" style="text-align: center; color: #94a3b8; padding: 20px;">
-                                        <i class="fas fa-spinner fa-spin"></i> Memuat daftar periode...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section: Unduh Data SIPEKA 360 -->
-        <div class="panel-card" id="sectionUnduhData" style="margin-bottom: 30px;">
-            <div class="panel-header">
-                <h3><i class="fas fa-download"></i> Unduh Data SIPEKA 360° (Penilaian Atasan, Bawahan & Rekan Sejawat)</h3>
-                <button class="btn-action-hero btn-hero-green" style="padding: 6px 14px; font-size: 0.8rem;" onclick="downloadAllSipekaData()">
-                    <i class="fas fa-file-excel"></i> Unduh Semua Sheet (.xlsx)
-                </button>
-            </div>
-            <div class="panel-body">
-                <p style="font-size: 0.84rem; color: #475569; margin-top: 0; margin-bottom: 16px;">
-                    Download database penilaian pegawai yang telah terekam di Google Sheets. Anda dapat mengunduh seluruh lembar kerja (Workbook) sekaligus dalam format <strong>Excel (.xlsx)</strong> atau per tab.
-                </p>
-
-                <div class="download-grid">
-                    <div class="download-card">
-                        <div>
-                            <div class="icon-circle"><i class="fas fa-user-tie"></i></div>
-                            <h4>Penilaian Atasan</h4>
-                            <p>Data responden dan penilaian kinerja perilaku oleh Atasan Langsung.</p>
+                    <div class="download-grid">
+                        <div class="download-card">
+                            <div>
+                                <div class="icon-circle"><i class="fas fa-user-tie"></i></div>
+                                <h4>Penilaian Atasan</h4>
+                                <p>Data responden dan penilaian kinerja perilaku oleh Atasan Langsung.</p>
+                            </div>
+                            <button class="btn-download-sheet" onclick="downloadSpecificSheet('Atasan')">
+                                <i class="fas fa-file-csv"></i> Unduh Tab Atasan
+                            </button>
                         </div>
-                        <button class="btn-download-sheet" onclick="downloadSpecificSheet('Atasan')">
-                            <i class="fas fa-file-csv"></i> Unduh Tab Atasan
-                        </button>
-                    </div>
 
-                    <div class="download-card">
-                        <div>
-                            <div class="icon-circle"><i class="fas fa-user-group"></i></div>
-                            <h4>Penilaian Rekan Sejawat</h4>
-                            <p>Data penilaian umpan balik rekan kerja sejawat ASN.</p>
+                        <div class="download-card">
+                            <div>
+                                <div class="icon-circle"><i class="fas fa-user-group"></i></div>
+                                <h4>Penilaian Rekan Sejawat</h4>
+                                <p>Data penilaian umpan balik rekan kerja sejawat ASN.</p>
+                            </div>
+                            <button class="btn-download-sheet" onclick="downloadSpecificSheet('Rekan')">
+                                <i class="fas fa-file-csv"></i> Unduh Tab Rekan
+                            </button>
                         </div>
-                        <button class="btn-download-sheet" onclick="downloadSpecificSheet('Rekan')">
-                            <i class="fas fa-file-csv"></i> Unduh Tab Rekan
-                        </button>
-                    </div>
 
-                    <div class="download-card">
-                        <div>
-                            <div class="icon-circle"><i class="fas fa-user"></i></div>
-                            <h4>Penilaian Bawahan</h4>
-                            <p>Data penilaian bawahan terhadap pimpinan/pejabat struktural.</p>
+                        <div class="download-card">
+                            <div>
+                                <div class="icon-circle"><i class="fas fa-user"></i></div>
+                                <h4>Penilaian Bawahan</h4>
+                                <p>Data penilaian bawahan terhadap pimpinan/pejabat struktural.</p>
+                            </div>
+                            <button class="btn-download-sheet" onclick="downloadSpecificSheet('Bawahan')">
+                                <i class="fas fa-file-csv"></i> Unduh Tab Bawahan
+                            </button>
                         </div>
-                        <button class="btn-download-sheet" onclick="downloadSpecificSheet('Bawahan')">
-                            <i class="fas fa-file-csv"></i> Unduh Tab Bawahan
-                        </button>
                     </div>
                 </div>
             </div>
@@ -1005,7 +1085,7 @@
         };
         let cachedAllSheetsData = null;
 
-        // Inisialisasi Data Profil
+        // Inisialisasi Data Profil & Tab
         document.addEventListener('DOMContentLoaded', function () {
             const userStr = sessionStorage.getItem('penilaian360_user');
             if (userStr) {
@@ -1016,6 +1096,11 @@
             }
 
             fetchConfigData();
+
+            // Cek jika URL memiliki hash #sectionUnduhData
+            if (window.location.hash === '#sectionUnduhData' || window.location.hash === '#unduh') {
+                switchSection('sectionUnduhData');
+            }
         });
 
         // Toggle Profile Dropdown Menu
@@ -1033,13 +1118,38 @@
             }
         });
 
-        function scrollToSection(sectionId) {
-            const el = document.getElementById(sectionId);
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Switch Admin View Section (Manajemen Periode vs Unduh Data)
+        function switchSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.admin-section');
+            sections.forEach(sec => sec.classList.remove('active'));
+
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
             }
+
+            // Update Tab Active Status
+            const tabPeriode = document.getElementById('tabBtnPeriode');
+            const tabUnduh = document.getElementById('tabBtnUnduh');
+
+            if (sectionId === 'sectionManajemenPeriode') {
+                if (tabPeriode) tabPeriode.classList.add('active');
+                if (tabUnduh) tabUnduh.classList.remove('active');
+            } else if (sectionId === 'sectionUnduhData') {
+                if (tabUnduh) tabUnduh.classList.add('active');
+                if (tabPeriode) tabPeriode.classList.remove('active');
+            }
+
+            // Close Profile dropdown if open
             const wrapper = document.getElementById('profileDropdownWrapper');
             if (wrapper) wrapper.classList.remove('active');
+
+            // Smooth scroll to top of section
+            if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         // 1. Ambil Konfigurasi Periode dari Backend
