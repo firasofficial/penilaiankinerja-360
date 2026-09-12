@@ -32,9 +32,14 @@ function doGet(e) {
     const params = e.parameter || {};
     const action = params.action || "get_pegawai";
 
-    // Aksi: Ambil Master Data Pegawai dari Sheet 'Data_Pegawai'
+    // 1. Aksi: Ambil Master Data Pegawai dari Sheet 'Data_Pegawai'
     if (action === "get_pegawai") {
       return handleGetPegawai();
+    }
+
+    // 2. Aksi: Ambil Pengaturan Sistem (Termasuk Periode Penilaian Aktif)
+    if (action === "get_config") {
+      return handleGetConfig();
     }
 
     return ContentService.createTextOutput(JSON.stringify({
@@ -57,6 +62,14 @@ function doPost(e) {
     // 1. Aksi: Ambil Master Data Pegawai
     if (action === "get_pegawai") {
       return handleGetPegawai();
+    }
+
+    // 2. Aksi: Ambil / Simpan Pengaturan
+    if (action === "get_config") {
+      return handleGetConfig();
+    }
+    if (action === "save_config") {
+      return handleSaveConfig(params);
     }
 
     // 2. Aksi: Kirim Kode OTP ke Email
@@ -138,11 +151,87 @@ function handleGetPegawai() {
     result.push(item);
   }
 
+  const config = getAppConfig();
+
   return ContentService.createTextOutput(JSON.stringify({
     status: "success",
     total: result.length,
+    config: config,
     data: result
   })).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Mengambil Pengaturan Sistem (Termasuk Periode Penilaian)
+ */
+function handleGetConfig() {
+  const config = getAppConfig();
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "success",
+    config: config
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Menyimpan / Memperbarui Pengaturan Sistem dari Admin
+ */
+function handleSaveConfig(params) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName("Pengaturan") || ss.getSheetByName("Config");
+  if (!sheet) {
+    sheet = ss.insertSheet("Pengaturan");
+    sheet.appendRow(["Kunci_Pengaturan", "Nilai_Pengaturan", "Keterangan"]);
+  }
+
+  const periode = (params.periode_penilaian || params.periode_aktif || "Tahun 2025").trim();
+  let found = false;
+  const data = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] && data[i][0].toString().toUpperCase() === "PERIODE_PENILAIAN_AKTIF") {
+      sheet.getRange(i + 1, 2).setValue(periode);
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    sheet.appendRow(["PERIODE_PENILAIAN_AKTIF", periode, "Periode penilaian aktif yang muncul di formulir"]);
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "success",
+    message: "Pengaturan berhasil disimpan.",
+    periode_aktif: periode
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Helper: Ambil Objek Config dari Sheet 'Pengaturan' / ScriptProperties
+ */
+function getAppConfig() {
+  let periodeAktif = "Tahun 2025";
+  let periodeList = ["Tahun 2025", "Tahun 2026", "Triwulan I 2025", "Triwulan II 2025", "Triwulan III 2025", "Triwulan IV 2025", "Semester I 2025", "Semester II 2025"];
+
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName("Pengaturan") || ss.getSheetByName("Config");
+    if (sheet) {
+      const data = sheet.getDataRange().getValues();
+      for (let i = 0; i < data.length; i++) {
+        const key = String(data[i][0] || "").trim().toUpperCase();
+        const val = String(data[i][1] || "").trim();
+        if (key === "PERIODE_PENILAIAN_AKTIF" || key === "PERIODE_AKTIF") {
+          if (val) periodeAktif = val;
+        }
+      }
+    }
+  } catch (e) {}
+
+  return {
+    periode_aktif: periodeAktif,
+    periode_list: periodeList
+  };
 }
 
 /**
