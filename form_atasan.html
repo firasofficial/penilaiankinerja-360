@@ -503,11 +503,11 @@
                 <p style="color: #6b7280; margin:0;">Silakan isi data Atasan Anda dan berikan penilaian seobjektif mungkin.</p>
             </div>
 
-            <h5 class="section-title">A. Data Atasan Yang Dinilai</h5>                      
+            <h5 class="section-title">A. Satuan Kerja Atasan Anda</h5>                      
             
             <div class="form-grid">
                 <div class="form-group full-width"> 
-                    <label for="satuanKerja" class="form-label fw-bold text-secondary">Nama Satuan Kerja Anda</label>
+                    <label for="satuanKerja" class="form-label fw-bold text-secondary">Nama Satuan Kerja Atasan Anda</label>
                     <select name="satuan_kerja" id="satuanKerja" class="form-select" required>
                         <option value=""></option>
                         <option value="Badan Kepegawaian dan Pengembangan Sumber Daya Manusia">Badan Kepegawaian dan Pengembangan Sumber Daya Manusia</option>
@@ -573,6 +573,7 @@
                 </div>
             </div>
 
+            <h5 class="section-title">B. Data Atasan Yang Dinilai</h5>
             <div class="form-grid">
                 <div class="form-group autocomplete-wrapper">
                     <label for="nip_bawahan">NIP Atasan</label>
@@ -608,17 +609,17 @@
 
                 <div class="form-group">
                     <label>Peran Penilai</label>
-                    <input type="text" name="peran_penilai" value="10" class="input-peran" readonly>
+                    <input type="text" name="peran_penilai" value="10" class="input-peran" readonly title="Kode Peran Bawahan Menilai Atasan">
                 </div>
             </div>
 
             <div class="instrumen-section">
-                <h3 class="section-title" style="margin-top: 0; border-color: var(--accent-green);">B. Instrumen Penilaian Perilaku Kerja (Berdasarkan Core Value ASN Ber-AKHLAK)</h3>          
+                <h3 class="section-title" style="margin-top: 0; border-color: var(--accent-green);">C. Instrumen Penilaian Perilaku Kerja (Berdasarkan Core Value ASN Ber-AKHLAK)</h3>          
                 <p style="font-size: 0.9rem; margin-bottom: 20px; color: #4b5563;">Mohon berikan penilaian Anda secara objektif dengan memilih angka 1 hingga 5.</p>
                 
                 <div class="question-box">
                     <div class="question-title">1. Berorientasi Pelayanan</div>
-                    <p>Bagaimanakah Bawahan Anda dalam memberikan pelayanan?</p>
+                    <p>Bagaimanakah Atasan Anda dalam memberikan pelayanan?</p>
                     <div class="rubric-box">
                         <ul>
                             <li><strong>5 (Sangat Baik)</strong>: Sangat memahami kebutuhan pelayanan dan sangat ramah dan cekatan dalam memberikan pelayanan.</li>
@@ -639,7 +640,7 @@
 
                 <div class="question-box">
                     <div class="question-title">2. Akuntabel</div>
-                    <p>Bagaimanakah Bawahan Anda dalam menyikapi arahan dan kepercayaan yang diberikan?</p>
+                    <p>Bagaimanakah Atasan Anda dalam menyikapi arahan dan kepercayaan yang diberikan?</p>
                     <div class="rubric-box">
                         <ul>
                             <li><strong>5 (Sangat Baik)</strong>: Sangat Jujur, disiplin dan sangat bertanggung jawab.</li>
@@ -660,7 +661,7 @@
 
                 <div class="question-box">
                     <div class="question-title">3. Kompeten</div>
-                    <p>Bagaimanakah kualitas bawahan Anda dalam melaksanakan tugas dan mengembangkan kapabilitasnya?</p>
+                    <p>Bagaimanakah kualitas Atasan Anda dalam melaksanakan tugas dan mengembangkan kapabilitasnya?</p>
                     <div class="rubric-box">
                         <ul>
                             <li><strong>5 (Sangat Baik)</strong>: Melaksanakan tugas dengan kualitas sangat baik dan memiliki motivasi yang sangat tinggi untuk mengembangkan diri.</li>
@@ -681,7 +682,7 @@
 
                 <div class="question-box">
                     <div class="question-title">4. Harmonis</div>
-                    <p>Bagaimanakah sikap Bawahan Anda terhadap orang lain dan bagaimana ia menyikapi perbedaan?</p>
+                    <p>Bagaimanakah sikap Atasan Anda terhadap orang lain dan bagaimana ia menyikapi perbedaan?</p>
                     <div class="rubric-box">
                         <ul>
                             <li><strong>5 (Sangat Baik)</strong>: Sangat suka menolong dan sangat menghargai perbedaan.</li>
@@ -702,7 +703,7 @@
 
                 <div class="question-box">
                     <div class="question-title">5. Loyal</div>
-                    <p>Bagaimanakah dedikasi Bawahan Anda terhadap kepentingan Bangsa dan Negara?</p>
+                    <p>Bagaimanakah dedikasi Atasan Anda terhadap kepentingan Bangsa dan Negara?</p>
                     <div class="rubric-box">
                         <ul>
                             <li><strong>5 (Sangat Baik)</strong>: Berdedikasi sangat tinggi dan sangat mampu menjaga nama baik sesama ASN, Instansi, dan Negara.</li>
@@ -723,7 +724,7 @@
 
                 <div class="question-box">
                     <div class="question-title">6. Adaptif</div>
-                    <p>Bagaimanakah Bawahan Anda dalam menyikapi dan menghadapi setiap perubahan?</p>
+                    <p>Bagaimanakah Atasan Anda dalam menyikapi dan menghadapi setiap perubahan?</p>
                     <div class="rubric-box">
                         <ul>
                             <li><strong>5 (Sangat Baik)</strong>: Sangat proaktif terhadap setiap perubahan dan sangat cepat menyesuaikan diri.</li>
@@ -744,7 +745,7 @@
 
                 <div class="question-box">
                     <div class="question-title">7. Kolaboratif</div>
-                    <p>Bagaimanakah Bawahan Anda dalam membangun jejaring kerja dan kolaborasi?</p>
+                    <p>Bagaimanakah Atasan Anda dalam membangun jejaring kerja dan kolaborasi?</p>
                     <div class="rubric-box">
                         <ul>
                             <li><strong>5 (Sangat Baik)</strong>: Sangat terbuka untuk bekerja sama dan memberikan kesempatan yang luas kepada orang lain untuk berkontribusi.</li>
@@ -874,8 +875,9 @@
             }
 
             // Otomatis pilih satuan kerja jika cocok
-            if (p.satuan_kerja || p.unit_kerja) {
-                const targetSk = (p.satuan_kerja || p.unit_kerja).trim().toLowerCase();
+            const rawSk = p.satuan_kerja || p['satuan kerja'] || p.unit_kerja || p['unit kerja'] || '';
+            if (rawSk) {
+                const targetSk = rawSk.trim().toLowerCase();
                 $('#satuanKerja option').each(function() {
                     if ($(this).val() && $(this).val().trim().toLowerCase() === targetSk) {
                         $('#satuanKerja').val($(this).val()).trigger('change');

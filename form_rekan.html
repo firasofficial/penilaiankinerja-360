@@ -923,8 +923,9 @@
             }
 
             // Otomatis pilih satuan kerja jika cocok
-            if (p.satuan_kerja || p.unit_kerja) {
-                const targetSk = (p.satuan_kerja || p.unit_kerja).trim().toLowerCase();
+            const rawSk = p.satuan_kerja || p['satuan kerja'] || p.unit_kerja || p['unit kerja'] || '';
+            if (rawSk) {
+                const targetSk = rawSk.trim().toLowerCase();
                 $('#satuanKerja option').each(function() {
                     if ($(this).val() && $(this).val().trim().toLowerCase() === targetSk) {
                         $('#satuanKerja').val($(this).val()).trigger('change');

@@ -548,14 +548,14 @@
 
             <div class="form-header">
                 <div class="badge"><i class="fas fa-user-graduate"></i> Form Bawahan</div>
-                <h2>Penilaian Oleh Bawahan Terhadap Atasan</h2>
-                <p style="color: #6b7280; margin:0;">Silakan isi data Atasan Langsung Anda dan berikan penilaian seobjektif mungkin.</p>
+                <h2>Penilaian Oleh Atasan Terhadap Bawahan</h2>
+                <p style="color: #6b7280; margin:0;">Silakan isi data Bawahan Langsung Anda dan berikan penilaian seobjektif mungkin.</p>
             </div>
 
-            <h5 class="section-title">A. Data Atasan yang Dinilai</h5>
+            <h5 class="section-title">A. Satuan Kerja Bawahan Anda</h5>
             <div class="form-grid">
                 <div class="form-group full-width"> 
-                    <label for="satuanKerja" class="form-label fw-bold text-secondary">Nama Satuan Kerja Atasan Anda</label>
+                    <label for="satuanKerja" class="form-label fw-bold text-secondary">Nama Satuan Kerja Bawahan Anda</label>
                     <select name="satuan_kerja" id="satuanKerja" class="form-select" required>
                         <option value="" disabled selected>-- Pilih Satuan Kerja / Perangkat Daerah --</option>
                         <option value="Badan Kepegawaian dan Pengembangan Sumber Daya Manusia">Badan Kepegawaian dan Pengembangan Sumber Daya Manusia</option>
@@ -621,16 +621,16 @@
                 </div>
             </div>
 
-            <h5 class="section-title">B. Data Atasan Yang Dinilai</h5>
+            <h5 class="section-title">B. Data Bawahan Yang Dinilai</h5>
             <div class="form-grid">
                 <div class="form-group autocomplete-wrapper">
-                    <label for="nip_bawahan">NIP Atasan</label>
+                    <label for="nip_bawahan">NIP Bawahan</label>
                     <input type="text" id="nip_bawahan" name="nip_bawahan" maxlength="18" placeholder="18 Digit NIP Tanpa Spasi" required oninput="this.value = this.value.replace(/[^0-9]/g, '')" autocomplete="off">
                     <div id="nipSuggestions" class="autocomplete-dropdown" style="display: none;"></div>
                 </div>
 
                 <div class="form-group autocomplete-wrapper">
-                    <label for="nama_bawahan">Nama Atasan</label>
+                    <label for="nama_bawahan">Nama Bawahan</label>
                     <input type="text" id="nama_bawahan" name="nama_bawahan" placeholder="Ketik nama untuk mencari otomatis..." required autocomplete="off">
                     <div id="namaSuggestions" class="autocomplete-dropdown" style="display: none;"></div>
                 </div>
@@ -657,25 +657,25 @@
 
                 <div class="form-group">
                     <label>Peran Penilai</label>
-                    <input type="text" name="peran_penilai" value="30" class="input-peran" readonly title="Kode Peran Bawahan Menilai Atasan">
+                    <input type="text" name="peran_penilai" value="30" class="input-peran" readonly title="Kode Peran Atasan Menilai Bawahan">
                 </div>
 
             </div>
 
             <div class="instrumen-section">
-                <h3 class="section-title" style="margin-top: 0; border-color: var(--secondary-blue);">B. Instrumen Penilaian Perilaku Kerja (Berdasarkan Core Value ASN Ber-AKHLAK)</h3>
+                <h3 class="section-title" style="margin-top: 0; border-color: var(--secondary-blue);">C. Instrumen Penilaian Perilaku Kerja (Berdasarkan Core Value ASN Ber-AKHLAK)</h3>
                 <p style="font-size: 0.9rem; margin-bottom: 20px; color: #4b5563;">Mohon berikan penilaian Anda secara objektif dengan memilih angka 1 hingga 5.</p>
                 
                 <div class="question-box">
                     <div class="question-title">1. Berorientasi Pelayanan</div>
-                    <p>Bagaimanakah atasan Anda dalam memberikan pelayanan?</p>
+                    <p>Bagaimanakah bawahan Anda dalam memberikan pelayanan?</p>
                     <div class="rubric-box">
                         <ul>
-                            <li><strong>5 (Sangat Baik)</strong>: Sangat memahami kebutuhan pelayanan dan sangat ramah dan cekatan.</li>
-                            <li><strong>4 (Baik)</strong>: Memahami kebutuhan pelayanan dan ramah serta cekatan.</li>
-                            <li><strong>3 (Cukup)</strong>: Cukup memahami kebutuhan pelayanan dan cukup ramah.</li>
-                            <li><strong>2 (Kurang)</strong>: Kurang memahami kebutuhan pelayanan dan kurang ramah.</li>
-                            <li><strong>1 (Sangat Kurang)</strong>: Sangat tidak memahami kebutuhan pelayanan dan sangat tidak ramah.</li>
+                            <li><strong>5 (Sangat Baik)</strong>: Sangat memahami kebutuhan pelayanan dan sangat ramah dan cekatan dalam memberikan pelayanan.</li>
+                            <li><strong>4 (Baik)</strong>: Memahami kebutuhan pelayanan dan ramah serta cekatan dalam memberikan pelayanan.</li>
+                            <li><strong>3 (Cukup)</strong>: Cukup memahami kebutuhan pelayanan dan cukup ramah dalam memberikan pelayanan.</li>
+                            <li><strong>2 (Kurang)</strong>: Kurang memahami kebutuhan pelayanan dan kurang ramah dalam memberikan pelayanan.</li>
+                            <li><strong>1 (Sangat Kurang)</strong>: Sangat tidak memahami kebutuhan pelayanan dan sangat tidak ramah dalam memberikan pelayanan.</li>
                         </ul>
                     </div>
                     <div class="radio-group">
@@ -689,7 +689,7 @@
 
                 <div class="question-box">
                     <div class="question-title">2. Akuntabel</div>
-                    <p>Bagaimanakah atasan Anda dalam menyikapi arahan dan kepercayaan yang diberikan?</p>
+                    <p>Bagaimanakah bawahan Anda dalam menyikapi arahan dan kepercayaan yang diberikan?</p>
                     <div class="rubric-box">
                         <ul>
                             <li><strong>5 (Sangat Baik)</strong>: Sangat Jujur, disiplin dan sangat bertanggung jawab.</li>
@@ -710,14 +710,14 @@
 
                 <div class="question-box">
                     <div class="question-title">3. Kompeten</div>
-                    <p>Bagaimanakah kualitas atasan Anda dalam melaksanakan tugas dan mengembangkan kapabilitasnya?</p>
+                    <p>Bagaimanakah kualitas bawahan Anda dalam melaksanakan tugas dan mengembangkan kapabilitasnya?</p>
                     <div class="rubric-box">
                         <ul>
-                            <li><strong>5 (Sangat Baik)</strong>: Kualitas sangat baik dan motivasi sangat tinggi mengembangkan diri.</li>
-                            <li><strong>4 (Baik)</strong>: Kualitas baik dan memiliki motivasi mengembangkan diri.</li>
-                            <li><strong>3 (Cukup)</strong>: Kualitas cukup baik dan memiliki cukup motivasi.</li>
-                            <li><strong>2 (Kurang)</strong>: Kualitas kurang baik dan memiliki sedikit motivasi.</li>
-                            <li><strong>1 (Sangat Kurang)</strong>: Kualitas sangat buruk dan tidak ada motivasi.</li>
+                            <li><strong>5 (Sangat Baik)</strong>: Melaksanakan tugas dengan kualitas sangat baik dan memiliki motivasi yang sangat tinggi untuk mengembangkan diri.</li>
+                            <li><strong>4 (Baik)</strong>: Melaksanakan tugas dengan kualitas baik dan memiliki motivasi untuk mengembangkan diri.</li>
+                            <li><strong>3 (Cukup)</strong>: Melaksanakan tugas dengan kualitas cukup baik dan memiliki cukup motivasi untuk mengembangkan diri.</li>
+                            <li><strong>2 (Kurang)</strong>: Melaksanakan tugas dengan kualitas kurang baik dan memiliki sedikit motivasi untuk mengembangkan diri.</li>
+                            <li><strong>1 (Sangat Kurang)</strong>: Melaksanakan tugas dengan kualitas sangat buruk dan tidak ada motivasi untuk mengembangkan diri.</li>
                         </ul>
                     </div>
                     <div class="radio-group">
@@ -731,7 +731,7 @@
 
                 <div class="question-box">
                     <div class="question-title">4. Harmonis</div>
-                    <p>Bagaimanakah sikap atasan Anda terhadap orang lain dan bagaimana ia menyikapi perbedaan?</p>
+                    <p>Bagaimanakah sikap bawahan Anda terhadap orang lain dan bagaimana ia menyikapi perbedaan?</p>
                     <div class="rubric-box">
                         <ul>
                             <li><strong>5 (Sangat Baik)</strong>: Sangat suka menolong dan sangat menghargai perbedaan.</li>
@@ -752,14 +752,14 @@
 
                 <div class="question-box">
                     <div class="question-title">5. Loyal</div>
-                    <p>Bagaimanakah dedikasi atasan Anda terhadap kepentingan Bangsa dan Negara?</p>
+                    <p>Bagaimanakah dedikasi bawahan Anda terhadap kepentingan Bangsa dan Negara?</p>
                     <div class="rubric-box">
                         <ul>
-                            <li><strong>5 (Sangat Baik)</strong>: Berdedikasi sangat tinggi, sangat mampu menjaga nama baik.</li>
-                            <li><strong>4 (Baik)</strong>: Berdedikasi dan mampu menjaga nama baik.</li>
-                            <li><strong>3 (Cukup)</strong>: Cukup berdedikasi dan cukup mampu menjaga nama baik.</li>
-                            <li><strong>2 (Kurang)</strong>: Kurang berdedikasi dan kurang mampu menjaga nama baik.</li>
-                            <li><strong>1 (Sangat Kurang)</strong>: Sangat tidak berdedikasi dan sama sekali tidak mampu.</li>
+                            <li><strong>5 (Sangat Baik)</strong>: Berdedikasi sangat tinggi dan sangat mampu menjaga nama baik sesama ASN, Instansi, dan Negara.</li>
+                            <li><strong>4 (Baik)</strong>: Berdedikasi dan mampu menjaga nama baik sesama ASN, Instansi, dan Negara.</li>
+                            <li><strong>3 (Cukup)</strong>: Cukup berdedikasi dan cukup mampu menjaga nama baik sesama ASN, Instansi, dan Negara.</li>
+                            <li><strong>2 (Kurang)</strong>: Kurang berdedikasi dan kurang mampu menjaga nama baik sesama ASN, Instansi, dan Negara.</li>
+                            <li><strong>1 (Sangat Kurang)</strong>: Sangat tidak berdedikasi dan sama sekali tidak mampu menjaga nama baik sesama ASN, Instansi, dan Negara.</li>
                         </ul>
                     </div>
                     <div class="radio-group">
@@ -773,14 +773,14 @@
 
                 <div class="question-box">
                     <div class="question-title">6. Adaptif</div>
-                    <p>Bagaimanakah atasan Anda dalam menyikapi dan menghadapi setiap perubahan?</p>
+                    <p>Bagaimanakah bawahan Anda dalam menyikapi dan menghadapi setiap perubahan?</p>
                     <div class="rubric-box">
                         <ul>
                             <li><strong>5 (Sangat Baik)</strong>: Sangat proaktif terhadap setiap perubahan dan sangat cepat menyesuaikan diri.</li>
                             <li><strong>4 (Baik)</strong>: Proaktif terhadap perubahan dan cepat menyesuaikan diri.</li>
                             <li><strong>3 (Cukup)</strong>: Cukup proaktif terhadap perubahan dan cukup cepat menyesuaikan diri.</li>
                             <li><strong>2 (Kurang)</strong>: Kurang proaktif terhadap perubahan dan lambat menyesuaikan diri.</li>
-                            <li><strong>1 (Sangat Kurang)</strong>: Sangat tidak proaktif dan sangat lambat menyesuaikan diri.</li>
+                            <li><strong>1 (Sangat Kurang)</strong>: Sangat tidak proaktif terhadap perubahan dan sangat lambat menyesuaikan diri.</li>
                         </ul>
                     </div>
                     <div class="radio-group">
@@ -794,14 +794,14 @@
 
                 <div class="question-box">
                     <div class="question-title">7. Kolaboratif</div>
-                    <p>Bagaimanakah atasan Anda dalam membangun jejaring kerja dan kolaborasi?</p>
+                    <p>Bagaimanakah bawahan Anda dalam membangun jejaring kerja dan kolaborasi?</p>
                     <div class="rubric-box">
                         <ul>
-                            <li><strong>5 (Sangat Baik)</strong>: Sangat terbuka bekerja sama & memberi kesempatan luas orang lain berkontribusi.</li>
-                            <li><strong>4 (Baik)</strong>: Terbuka bekerja sama & memberi kesempatan orang lain berkontribusi.</li>
-                            <li><strong>3 (Cukup)</strong>: Cukup terbuka bekerja sama & memberi kesempatan cukup.</li>
-                            <li><strong>2 (Kurang)</strong>: Kurang terbuka bekerja sama & kurang memberi kesempatan.</li>
-                            <li><strong>1 (Sangat Kurang)</strong>: Tidak terbuka bekerja sama & tidak memberi kesempatan.</li>
+                            <li><strong>5 (Sangat Baik)</strong>: Sangat terbuka untuk bekerja sama dan memberikan kesempatan yang luas kepada orang lain untuk berkontribusi.</li>
+                            <li><strong>4 (Baik)</strong>: Terbuka untuk bekerja sama dan memberikan kesempatan kepada orang lain untuk berkontribusi.</li>
+                            <li><strong>3 (Cukup)</strong>: Cukup terbuka untuk bekerja sama dan memberikan kesempatan yang cukup kepada orang lain untuk berkontribusi.</li>
+                            <li><strong>2 (Kurang)</strong>: Kurang terbuka untuk bekerja sama dan kurang memberikan kesempatan kepada orang lain untuk berkontribusi.</li>
+                            <li><strong>1 (Sangat Kurang)</strong>: Tidak terbuka untuk bekerja sama dan tidak memberikan kesempatan kepada orang lain untuk berkontribusi.</li>
                         </ul>
                     </div>
                     <div class="radio-group">
@@ -916,8 +916,9 @@
             }
 
             // Otomatis pilih satuan kerja jika cocok
-            if (p.satuan_kerja || p.unit_kerja) {
-                const targetSk = (p.satuan_kerja || p.unit_kerja).trim().toLowerCase();
+            const rawSk = p.satuan_kerja || p['satuan kerja'] || p.unit_kerja || p['unit kerja'] || '';
+            if (rawSk) {
+                const targetSk = rawSk.trim().toLowerCase();
                 $('#satuanKerja option').each(function() {
                     if ($(this).val() && $(this).val().trim().toLowerCase() === targetSk) {
                         $('#satuanKerja').val($(this).val()).trigger('change');

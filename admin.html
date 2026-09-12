@@ -1255,6 +1255,7 @@
                 btn.disabled = false;
 
                 if (res.status === 'success') {
+                    cachedAllSheetsData = null;
                     Swal.fire({
                         icon: 'success',
                         title: 'Periode Berhasil Ditambahkan!',
@@ -1315,6 +1316,7 @@
                     fetch(scriptURL, { method: 'POST', body: formData })
                         .then(r => r.json())
                         .then(res => {
+                            cachedAllSheetsData = null;
                             currentConfig.periode_aktif = namaPeriode;
                             renderPeriodData();
                             Swal.fire({
@@ -1325,6 +1327,7 @@
                             });
                         })
                         .catch(() => {
+                            cachedAllSheetsData = null;
                             currentConfig.periode_aktif = namaPeriode;
                             renderPeriodData();
                             Swal.fire({
@@ -1406,6 +1409,7 @@
                     .then(r => r.json())
                     .then(res => {
                         if (res.status === 'success') {
+                            cachedAllSheetsData = null;
                             if (res.config) {
                                 currentConfig = res.config;
                             } else {
@@ -1482,6 +1486,7 @@
                         .then(r => r.json())
                         .then(res => {
                             if (res.status === 'success') {
+                                cachedAllSheetsData = null;
                                 if (res.config) currentConfig = res.config;
                                 renderPeriodData();
                                 Swal.fire({
@@ -1511,11 +1516,11 @@
             });
         }
 
-        // 7. Ambil Data Semua Sheet dari Spreadsheet
-        async function fetchAllSheetsData() {
-            if (cachedAllSheetsData) return cachedAllSheetsData;
+        // 7. Ambil Data Semua Sheet dari Spreadsheet (Selalu Fresh saat Download)
+        async function fetchAllSheetsData(forceRefresh = true) {
+            if (!forceRefresh && cachedAllSheetsData) return cachedAllSheetsData;
 
-            const res = await fetch(scriptURL + '?action=get_all_penilaian_data');
+            const res = await fetch(scriptURL + '?action=get_all_penilaian_data&_t=' + new Date().getTime());
             const data = await res.json();
             if (data && data.status === 'success') {
                 cachedAllSheetsData = data.sheets;
