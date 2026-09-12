@@ -1231,7 +1231,6 @@
         </div>
     </div>
 
-    <script src="pegawai.js"></script>
     <script>
         (function () {
             'use strict';
@@ -1266,7 +1265,7 @@
                         pegawaiData = JSON.parse(cached);
                         dataLoaded = true;
                         console.log('Data pegawai loaded instantly from Local Cache (' + pegawaiData.length + ' pegawai).');
-                        // Tetap update di background jika perlu
+                        // Tetap update di background
                         fetchFromSpreadsheetAsync();
                         return;
                     }
@@ -1274,7 +1273,7 @@
                     console.warn('Cache check error:', e);
                 }
 
-                // 2. Coba ambil dari Google Apps Script Spreadsheet Web App
+                // 2. Ambil langsung dari Google Spreadsheet Web App (Sheet Data_Pegawai)
                 try {
                     const resp = await fetch(scriptURL + '?action=get_pegawai');
                     if (resp.ok) {
@@ -1289,45 +1288,15 @@
                         }
                     }
                 } catch (errNet) {
-                    console.warn('Gagal koneksi ke Google Spreadsheet API, beralih ke dataset lokal...', errNet);
-                }
-
-                // 3. Fallback ke window.dataPegawaiGlobal (pegawai.js)
-                if (typeof window.dataPegawaiGlobal !== 'undefined' && Array.isArray(window.dataPegawaiGlobal) && window.dataPegawaiGlobal.length > 0) {
-                    pegawaiData = window.dataPegawaiGlobal;
-                    dataLoaded = true;
-                    console.log('Data pegawai loaded from pegawai.js fallback (' + pegawaiData.length + ' pegawai).');
-                    return;
-                }
-
-                // 4. Fallback ke pegawai.json
-                try {
-                    const resp = await fetch('pegawai.json');
-                    if (resp.ok) {
-                        pegawaiData = await resp.json();
-                        dataLoaded = true;
-                        console.log('Data pegawai loaded from pegawai.json fallback (' + pegawaiData.length + ' pegawai).');
-                        return;
-                    }
-                } catch (e) {
-                    console.warn('Fallback data demo aktif...');
-                    pegawaiData = [
-                        {
-                            "nip": "198504012010031002",
-                            "nama": "MUHAMMAD FAUZI",
-                            "jabatan": "Pengawas Sekolah Ahli Madya",
-                            "satuan kerja": "ACEH",
-                            "unit kerja": "DINAS PENDIDIKAN ACEH"
-                        },
-                        {
-                            "nip": "199001012015011001",
-                            "nama": "BUDI SANTOSO",
-                            "jabatan": "Pranata Komputer",
-                            "satuan kerja": "BKPSDM Aceh Timur",
-                            "unit kerja": "BKPSDM Aceh Timur"
+                    console.warn('Gagal koneksi ke Google Spreadsheet API:', errNet);
+                    try {
+                        const cached = localStorage.getItem(CACHE_KEY_PEGAWAI);
+                        if (cached) {
+                            pegawaiData = JSON.parse(cached);
+                            dataLoaded = true;
+                            return;
                         }
-                    ];
-                    dataLoaded = true;
+                    } catch(e) {}
                 }
             }
 

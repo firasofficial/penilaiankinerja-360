@@ -820,7 +820,6 @@
         </form>
     </div>
 
-    <script src="pegawai.js"></script>
     <script>
         // --- Inisialisasi Fitur Select2 (Dropdown Pencarian) ---
         $(document).ready(function() {
@@ -847,17 +846,7 @@
             }
         } catch(e) {}
 
-        // Selalu sinkronkan periode aktif real-time dari backend (Google Sheets)
-        fetch(scriptURL + '?action=get_config')
-            .then(r => r.json())
-            .then(res => {
-                if (res && res.config && res.config.periode_aktif) {
-                    localStorage.setItem(CACHE_KEY_PERIODE, res.config.periode_aktif);
-                    applyPeriodeAktif(res.config.periode_aktif);
-                }
-            })
-            .catch(() => {});
-
+        // Baca data pegawai dari cache browser segera
         try {
             const cached = localStorage.getItem(CACHE_KEY_PEGAWAI);
             if (cached) {
@@ -865,33 +854,22 @@
             }
         } catch (e) {}
 
-        if (!dataPegawai || dataPegawai.length === 0) {
-            if (window.dataPegawaiGlobal && window.dataPegawaiGlobal.length > 0) {
-                dataPegawai = window.dataPegawaiGlobal;
-            }
-            fetch(scriptURL + '?action=get_pegawai')
-                .then(res => res.json())
-                .then(res => {
-                    if (res && res.status === 'success') {
-                        if (res.data) {
-                            dataPegawai = res.data;
-                            localStorage.setItem(CACHE_KEY_PEGAWAI, JSON.stringify(dataPegawai));
-                        }
-                        if (res.config && res.config.periode_aktif) {
-                            localStorage.setItem(CACHE_KEY_PERIODE, res.config.periode_aktif);
-                            applyPeriodeAktif(res.config.periode_aktif);
-                        }
+        // Ambil data pegawai & config periode terbaru dari Google Spreadsheet
+        fetch(scriptURL + '?action=get_pegawai')
+            .then(res => res.json())
+            .then(res => {
+                if (res && res.status === 'success') {
+                    if (res.data) {
+                        dataPegawai = res.data;
+                        localStorage.setItem(CACHE_KEY_PEGAWAI, JSON.stringify(dataPegawai));
                     }
-                })
-                .catch(() => {
-                    if (!dataPegawai || dataPegawai.length === 0) {
-                        fetch('pegawai.json')
-                            .then(r => r.json())
-                            .then(d => { dataPegawai = d; })
-                            .catch(err => console.warn('Gagal memuat data fallback:', err));
+                    if (res.config && res.config.periode_aktif) {
+                        localStorage.setItem(CACHE_KEY_PERIODE, res.config.periode_aktif);
+                        applyPeriodeAktif(res.config.periode_aktif);
                     }
-                });
-        }
+                }
+            })
+            .catch(err => console.warn('Gagal memuat data pegawai dari server:', err));
 
         // 3. Tangkap Elemen Input HTML
         const nipInput = document.getElementById('nip_bawahan'); 
