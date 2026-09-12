@@ -74,8 +74,8 @@
                 const adminMenuItems = document.getElementById('adminMenuItems');
                 const avatarCircle = document.getElementById('userAvatarCircle');
 
-                const ADMIN_NIP = '200210242025041002';
-                const isAdmin = String(user.nip).trim() === ADMIN_NIP;
+                const ADMIN_NIPS = ['200210242025041002', '198807122011031001'];
+                const isAdmin = ADMIN_NIPS.includes(String(user.nip).trim());
 
                 // Restriction and Banner logic based on Jabatan
                 const jabatan = user.jabatan || '';

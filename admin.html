@@ -30,9 +30,9 @@
                 return;
             }
 
-            // Proteksi Admin: Hanya NIP 200210242025041002 yang berhak mengakses
-            const ADMIN_NIP = '200210242025041002';
-            if (String(user.nip).trim() !== ADMIN_NIP) {
+            // Proteksi Admin: Hak akses Administrator
+            const ADMIN_NIPS = ['200210242025041002', '198807122011031001'];
+            if (!ADMIN_NIPS.includes(String(user.nip).trim())) {
                 document.addEventListener('DOMContentLoaded', function () {
                     Swal.fire({
                         icon: 'error',
